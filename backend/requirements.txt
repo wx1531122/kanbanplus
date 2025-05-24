@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+python-dotenv
+Flask-JWT-Extended
+gunicorn
+# For testing and linting
+pytest
+pytest-cov
+flake8
+black
