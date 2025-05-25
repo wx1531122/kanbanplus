@@ -49,7 +49,8 @@ def create_project():
     name = data["name"].strip()
     description = data.get("description", "").strip()
 
-    project = Project(name=name, description=description, user_id=current_user_id)
+    project = Project(name=name, description=description,
+                      user_id=current_user_id)
     db.session.add(project)
     db.session.commit()
 
@@ -278,7 +279,10 @@ def create_task(stage_id):
     user = User.query.get(current_user_id)
     record_activity(
         action_type="TASK_CREATED",
-        description=f"User '{user.username}' created task '{task.content[:30]}...' in stage '{stage.name}'",
+        description=(
+            f"User '{user.username}' created task '{task.content[:30]}...' "
+            f"in stage '{stage.name}'"
+        ),
         user_id=current_user_id,
         project_id=stage.project_id,
         task_id=task.id,
@@ -381,7 +385,10 @@ def update_task(task_id):
         user = User.query.get(current_user_id)
         record_activity(
             action_type="TASK_UPDATED",
-            description=f"User '{user.username}' updated task '{task.content[:30]}...'",
+            description=(
+                f"User '{user.username}' updated task "
+                f"'{task.content[:30]}...'"
+            ),
             user_id=current_user_id,
             project_id=task.stage.project.id,
             task_id=task.id,
@@ -437,7 +444,8 @@ def create_subtask(task_id):
 
     if not isinstance(completed, bool):
         return (
-            jsonify({"message": "Invalid format for completed flag, must be boolean."}),
+            jsonify(
+                {"message": "Invalid format for completed flag, must be boolean."}),
             400,
         )
 
@@ -544,14 +552,18 @@ def create_comment(task_id):
 
     content = data["content"].strip()
 
-    comment = Comment(content=content, task_id=task.id, user_id=current_user_id)
+    comment = Comment(content=content, task_id=task.id,
+                      user_id=current_user_id)
     db.session.add(comment)
     db.session.commit()
 
     user = User.query.get(current_user_id)
     record_activity(
         action_type="COMMENT_ADDED",
-        description=f"User '{user.username}' commented on task '{task.content[:30]}...'",
+        description=(
+            f"User '{user.username}' commented on task "
+            f"'{task.content[:30]}...'"
+        ),
         user_id=current_user_id,
         project_id=task.stage.project.id,
         task_id=task.id,
@@ -637,7 +649,8 @@ def create_tag():
         return jsonify({"message": "Tag name is required"}), 400
 
     name = data["name"].strip()
-    existing_tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
+    existing_tag = Tag.query.filter(
+        db.func.lower(Tag.name) == name.lower()).first()
 
     if existing_tag:
         return jsonify(existing_tag.to_dict()), 200
@@ -650,13 +663,15 @@ def create_tag():
         IntegrityError
     ):  # Handles potential race conditions if another request creates the same tag
         db.session.rollback()
-        existing_tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
+        existing_tag = Tag.query.filter(
+            db.func.lower(Tag.name) == name.lower()).first()
         if existing_tag:
             return jsonify(existing_tag.to_dict()), 200
         else:
             # This case should ideally not be reached if the first check was done correctly
             return (
-                jsonify({"message": "Error creating tag, possibly due to a conflict."}),
+                jsonify(
+                    {"message": "Error creating tag, possibly due to a conflict."}),
                 500,
             )
 
@@ -724,7 +739,10 @@ def add_tag_to_task(task_id):
     user = User.query.get(current_user_id)
     record_activity(
         action_type="TAG_ADDED_TO_TASK",
-        description=f"User '{user.username}' added tag '{tag_to_add.name}' to task '{task.content[:30]}...'",
+        description=(
+            f"User '{user.username}' added tag '{tag_to_add.name}' "
+            f"to task '{task.content[:30]}...'"
+        ),
         user_id=current_user_id,
         project_id=task.stage.project.id,
         task_id=task.id,
@@ -759,7 +777,10 @@ def remove_tag_from_task(task_id, tag_id):
     user = User.query.get(current_user_id)
     record_activity(
         action_type="TAG_REMOVED_FROM_TASK",
-        description=f"User '{user.username}' removed tag '{tag_to_remove.name}' from task '{task.content[:30]}...'",
+        description=(
+            f"User '{user.username}' removed tag '{tag_to_remove.name}' "
+            f"from task '{task.content[:30]}...'"
+        ),
         user_id=current_user_id,
         project_id=task.stage.project.id,
         task_id=task.id,

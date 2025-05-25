@@ -218,15 +218,14 @@ def test_create_comment_activity_log(
             and activity["project_id"] == project_id
             and activity["user_id"] == auth_headers["user_id"]
         ):
-            assert (
-                f"commented on task '{task_content_ellipsis}'"
-                in activity["description"]
-            )
+            desc_str = f"commented on task '{task_content_ellipsis}'"
+            assert desc_str in activity["description"]
             comment_activity_found = True
             break
-    assert (
-        comment_activity_found
-    ), "COMMENT_ADDED activity not found for new comment in project activities"
+    assert comment_activity_found, (
+        "COMMENT_ADDED activity not found for new comment in project "
+        "activities"
+    )
 
     # Check activity log for the task
     task_activity_response = test_client.get(
@@ -241,12 +240,11 @@ def test_create_comment_activity_log(
             activity["action_type"] == "COMMENT_ADDED"
             and activity["user_id"] == auth_headers["user_id"]
         ):
-            assert (
-                f"commented on task '{task_content_ellipsis}'"
-                in activity["description"]
-            )
+            desc_str = f"commented on task '{task_content_ellipsis}'"
+            assert desc_str in activity["description"]
             task_comment_activity_found = True
             break
-    assert (
-        task_comment_activity_found
-    ), "COMMENT_ADDED activity not found for new comment on task activities"
+    assert task_comment_activity_found, (
+        "COMMENT_ADDED activity not found for new comment on task "
+        "activities"
+    )

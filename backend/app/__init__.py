@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from backend.config import config # Moved import to top
+from backend.config import config  # Moved import to top
 
 db = SQLAlchemy()
 migrate = Migrate()

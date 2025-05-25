@@ -100,7 +100,8 @@ def test_login_incorrect_password(test_client, db_session):
 
 
 def test_login_missing_fields(test_client):
-    response = login_user(test_client, "someuser@example.com", "")  # Missing password
+    response = login_user(
+        test_client, "someuser@example.com", "")  # Missing password
     assert response.status_code == 400
     assert response.json["message"] == "Missing email or password"
 
@@ -157,7 +158,8 @@ def test_logout(test_client, db_session):
     access_token = login_response.json["access_token"]
 
     headers = {"Authorization": f"Bearer {access_token}"}
-    response = test_client.post("/api/auth/logout", headers=headers)  # POST for logout
+    response = test_client.post(
+        "/api/auth/logout", headers=headers)  # POST for logout
     assert response.status_code == 200
     assert (
         response.json["message"]

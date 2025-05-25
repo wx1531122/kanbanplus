@@ -94,16 +94,19 @@ def registered_user(test_client, db_session):
 
     # If user already exists (e.g. from a test that didn't clean up properly, or if scope isn't function)
     # try to fetch the user instead. For true function-scoped DB isolation, this check is less critical.
-    if response.status_code == 409 and (
-        "Email already exists" in response.json.get("message", "")
-        or "Username already exists" in response.json.get("message", "")
-    ):
+    is_conflict = response.status_code == 409
+    message = response.json.get("message", "")
+    email_exists = "Email already exists" in message
+    username_exists = "Username already exists" in message
+
+    if is_conflict and (email_exists or username_exists):
         from backend.app.models import User
 
         user = User.query.filter_by(email=user_details["email"]).first()
         if not user:  # Should not happen if 409 was due to this user
             pytest.fail(
-                f"User registration conflict but user not found: {user_details['email']}"
+                f"User registration conflict for {user_details['email']}, "
+                "but user not found."
             )
     elif response.status_code != 201:
         pytest.fail(
@@ -119,7 +122,8 @@ def registered_user(test_client, db_session):
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "password": user_details["password"],  # Return plain password for login
+        # Return plain password for login
+        "password": user_details["password"],
     }
 
 
@@ -142,7 +146,8 @@ def auth_headers(test_client, registered_user):
     return {
         "Authorization": f"Bearer {access_token}",
         "user_id": registered_user["id"],  # Include user_id for convenience
-        "username": registered_user["username"],  # Include username for convenience
+        # Include username for convenience
+        "username": registered_user["username"],
     }
 
 
@@ -173,8 +178,8 @@ def created_project_data(test_client, auth_headers, db_session):
 def created_task_data(test_client, auth_headers, created_project_data, db_session):
     """
     Creates a project, stage, and task for the authenticated user.
-    Returns a dictionary with ids: {'project_id', 'stage_id', 'task_id', 'user_id', 'username'}
-    and other relevant info like names.
+    Returns a dictionary with ids: {'project_id', 'stage_id', 'task_id',
+    'user_id', 'username'} and other relevant info like names.
     """
     headers = {"Authorization": auth_headers["Authorization"]}
     project_id = created_project_data["id"]
