@@ -43,16 +43,79 @@ jobs:
         run: black --check . # Run black from backend/ directory
         # Alternatively, from repo root: black --check backend/
 
-      - name: Run tests with Pytest
-        run: pytest tests/ # Run pytest from backend/ directory, targeting tests/ subdir
-        # Alternatively, from repo root: pytest backend/tests/
-        # FLASK_CONFIG=testing is set by backend/pytest.ini
-        # PYTHONPATH might need to be set if running from repo root and imports fail.
-        # env:
-        #   PYTHONPATH: . # if running pytest from repo root for backend package
+      - name: Run tests with Pytest and Generate Coverage
+        # Run from ./backend directory, pytest.ini configures coverage for 'app' (backend/app)
+        run: pytest --cov=app --cov-report=xml --cov-report=term-missing tests/
+        # The --cov=app is relative to backend/ (where pytest.ini is and where command runs)
+        # This generates coverage.xml and term-missing report.
 
-      - name: Build Docker image
-        # This step needs to run from the repository root where ./backend is a subdirectory
-        # So, override the default working-directory for this step.
-        working-directory: .
-        run: docker build -t kanban-backend-test:${{ github.sha }} -f backend/Dockerfile ./backend
+      - name: Build Backend Docker image (for testing build process)
+        # This step needs to run from the repository root
+        working-directory: . # Override default for this step
+        run: docker build -t kanban-backend-ci-build:${{ github.sha }} -f backend/Dockerfile ./backend
+
+      # Optional: Upload coverage report (example, actual upload service not configured here)
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }} # Store this in GitHub secrets
+      #     working-directory: ./backend # Specify where coverage.xml is
+      #     files: ./coverage.xml # Path to coverage file relative to working-directory
+      #     fail_ci_if_error: true
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend Docker image to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        working-directory: . # Ensure context is repo root
+        with:
+          context: ./backend # Path to the backend Dockerfile context
+          file: ./backend/Dockerfile # Path to the backend Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/kanban-backend:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/kanban-backend:${{ github.sha }}
+          # Using github.repository_owner and github.event.repository.name for more robust image naming
+          # Example: ghcr.io/your-username/your-repo-name/kanban-backend:latest
+          # Note: If repo is owned by an organization, github.repository_owner is the org name.
+          # If personal repo, it's the username.
+          # github.repository provides 'owner/repo-name', so splitting might be needed if using that.
+          # Simpler: ghcr.io/${{ github.repository }}/kanban-backend:latest
+          # For GHCR, images are typically namespaced under the user or org.
+          # Let's use the simpler github.repository which is 'owner/repo'
+          # ghcr.io/${{ github.repository }}/kanban-backend:latest
+          # ghcr.io/${{ github.repository }}/kanban-backend:${{ github.sha }}
+          # The GHCR documentation suggests images are ghcr.io/OWNER/IMAGE_NAME
+          # So, if github.repository is 'my-user/my-kanban-app', then image would be
+          # ghcr.io/my-user/kanban-backend (if IMAGE_NAME is kanban-backend)
+          # Or, if we want to scope it under the repo name: ghcr.io/my-user/my-kanban-app/kanban-backend
+          # The latter is more specific if you have multiple images under one owner.
+          # Let's use the more specific one: ghcr.io/OWNER/REPO_NAME/IMAGE_NAME
+          # Correct tags for GHCR using new variables or direct construction:
+          # ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/kanban-backend:latest
+          # ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/kanban-backend:${{ github.sha }}
+          # Update: Simpler is often better if not managing many images for the repo.
+          # Using `lowercase` for repository name as GHCR prefers lowercase image names.
+          # Example: ghcr.io/myorg/myrepository/kanban-backend:latest
+          # For consistency, let's use the structure ghcr.io/OWNER/IMAGE_NAME
+          # Image name can be 'kanban-backend' or 'reponame-kanban-backend' for clarity.
+          # Let's use: ghcr.io/${{ github.repository_owner }}/kanban-backend:latest
+          # And ensure the repository name part is lowercase for the image path.
+          # The GITHUB_REPOSITORY variable is 'owner/repository-name'.
+          # So, tags should be:
+          # ghcr.io/${{ github.repository }}/kanban-backend:latest -> ghcr.io/owner/repository-name/kanban-backend:latest
+          # This is a common pattern. Let's stick to this.
+          # The build-push-action will use the context and Dockerfile path correctly.
+          # The tags should be formatted as shown in the example.
+          # The example uses `ghcr.io/${{ github.repository }}/<image-name>`.
+          # So, tags:
+          #   ghcr.io/${{ github.repository }}/kanban-backend:latest
+          #   ghcr.io/${{ github.repository }}/kanban-backend:${{ github.sha }}
+          # This seems correct and standard.
