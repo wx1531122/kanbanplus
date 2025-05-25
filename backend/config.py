@@ -22,7 +22,8 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = (
         os.environ.get("TEST_DATABASE_URL") or "sqlite:///:memory:"
     )
-    WTF_CSRF_ENABLED = False  # Disable CSRF for testing forms if any; not strictly needed for API tests
+    # Disable CSRF for testing forms if any; not strictly needed for API tests
+    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):

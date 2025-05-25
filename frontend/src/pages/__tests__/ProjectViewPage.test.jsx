@@ -190,7 +190,7 @@ describe('ProjectViewPage', () => {
     const addTaskButton = screen.getByRole('button', { name: 'Add Task to To Do' });
     await userEvent.click(addTaskButton);
     
-    const taskModal = await screen.findByTestId('task-modal');
+    await screen.findByTestId('task-modal'); // Ensure modal is present
     const saveButtonInModal = screen.getByRole('button', { name: 'SaveModalTask' }); // From mock
     await userEvent.click(saveButtonInModal);
     
@@ -233,7 +233,7 @@ describe('ProjectViewPage', () => {
     const taskElement = screen.getByTestId('task-1');
     await userEvent.click(taskElement);
     
-    const taskModal = await screen.findByTestId('task-modal');
+    await screen.findByTestId('task-modal'); // Ensure modal is present
     const triggerUpdateInModalButton = screen.getByRole('button', { name: 'TriggerTaskUpdateInModal' });
     await userEvent.click(triggerUpdateInModalButton);
 
