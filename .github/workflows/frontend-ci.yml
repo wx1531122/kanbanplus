@@ -1,0 +1,87 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build-and-test-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Using Node 20 as react-router-dom had warnings with 18
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci # Use ci for cleaner installs in CI
+
+      - name: Lint Frontend Code
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Check Frontend Formatting
+        working-directory: ./frontend
+        run: npm run format:check # Uses the script defined in package.json
+
+      - name: Run Frontend Tests and Generate Coverage
+        working-directory: ./frontend
+        # Uses the "coverage" script from package.json which is "vitest run --coverage"
+        # This will generate coverage reports as configured in vite.config.js (including xml)
+        run: npm run coverage 
+
+      - name: Build Frontend Static Assets
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Build Frontend Docker image (for testing build process)
+        # This step needs to run from the repository root
+        working-directory: . # Override default for this step
+        run: docker build -t kanban-frontend-ci-build:${{ github.sha }} -f frontend/Dockerfile ./frontend
+
+      # Optional: Upload coverage report (example)
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     working-directory: ./frontend # Directory where coverage.xml is located
+      #     files: ./coverage/coverage-final.json,./coverage/clover.xml,./coverage/lcov.info # Adjust paths as needed
+      #     # Or simply ./coverage/coverage.xml if that's the output
+      #     # Vitest with v8 provider might output to ./coverage/coverage-final.json (istanbul format)
+      #     # and ./coverage/clover.xml or similar for XML.
+      #     # Check vitest coverage output structure if using this.
+      #     # For now, assuming coverage.xml is generated in ./frontend/coverage/
+      #     # files: ./coverage/coverage.xml 
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push frontend Docker image to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend # Path to the frontend Dockerfile context
+          file: ./frontend/Dockerfile # Path to the frontend Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/kanban-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/kanban-frontend:${{ github.sha }}
