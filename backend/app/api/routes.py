@@ -280,12 +280,11 @@ def create_task(stage_id):
     db.session.commit()
 
     user = User.query.get(current_user_id)
+    desc_part1 = f"User '{user.username}' created task '{task.content[:30]}...' "
+    desc_part2 = f"in stage '{stage.name}'"
     record_activity(
         action_type="TASK_CREATED",
-        description=(
-            f"User '{user.username}' created task '{task.content[:30]}...' "
-            f"in stage '{stage.name}'"
-        ),
+        description=desc_part1 + desc_part2,
         user_id=current_user_id,
         project_id=stage.project_id,
         task_id=task.id,

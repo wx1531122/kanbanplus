@@ -88,7 +88,8 @@ def registered_user(test_client, db_session):
         "email": "fixture@example.com",
         "password": "password123",
     }
-    # Attempt registration, handle if already exists from a previous failed/unclean test run if session scope was wider
+    # Attempt registration, handle if already exists from a previous
+    # failed/unclean test run if session scope was wider
     # For function scope db_session, this should be clean each time.
     response = test_client.post("/api/auth/register", json=user_details)
 
@@ -109,15 +110,18 @@ def registered_user(test_client, db_session):
                 "but user not found."
             )
     elif response.status_code != 201:
-        pytest.fail(
+        error_msg = (
             f"User registration failed with status {response.status_code}: "
             f"{response.json}"
         )
+        pytest.fail(error_msg)
 
     from backend.app.models import User  # Import here to ensure app context
 
     user = User.query.filter_by(email=user_details["email"]).first()
-    assert user is not None, "User should have been created or found"
+    assert user is not None, (
+        "User should have been created or found"
+    )
 
     return {
         "id": user.id,
