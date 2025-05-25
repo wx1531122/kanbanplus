@@ -1,0 +1,21 @@
+.activity-log-list {
+  margin-top: 10px;
+  /* max-height: 300px; Set a max-height if you want it to be scrollable within a section */
+  /* overflow-y: auto; Enable scrolling if max-height is set */
+  padding: 5px; /* Padding around the list itself */
+  background-color: #ffffff; /* White background for the list area */
+  border-radius: 3px;
+  /* border: 1px solid #e0e0e0; Optional: border around the whole list */
+}
+
+.activity-list-message {
+  color: #6c757d; /* Grey color for messages like "Loading...", "No activities..." */
+  padding: 10px 0;
+  text-align: center;
+  font-style: italic;
+}
+
+.activity-list-error {
+  color: #dc3545; /* Red for error messages */
+  font-weight: bold;
+}

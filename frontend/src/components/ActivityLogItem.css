@@ -1,0 +1,34 @@
+.activity-log-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0; /* Light separator */
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.activity-log-item:last-child {
+  border-bottom: none;
+}
+
+.activity-description {
+  color: #333; /* Main text color */
+  margin: 0 0 4px 0;
+  word-wrap: break-word;
+}
+
+.activity-meta {
+  display: flex;
+  justify-content: space-between; /* Pushes timestamp to the right if user was on left */
+  align-items: center;
+}
+
+.activity-user { /* If we decide to display user separately */
+  font-weight: 500;
+  color: #555;
+  margin-right: 8px;
+}
+
+.activity-timestamp {
+  font-size: 0.85em;
+  color: #777; /* Lighter color for less emphasis */
+  text-align: right; /* Ensure timestamp is to the right if meta is not flexed */
+}

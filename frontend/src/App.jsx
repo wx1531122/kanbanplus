@@ -5,7 +5,8 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
-import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute'; 
+import ProjectViewPage from './pages/ProjectViewPage'; // Import ProjectViewPage
 // Import other necessary CSS or global styles
 import './App.css'; // Assuming some global styles
 
@@ -24,17 +25,16 @@ const router = createBrowserRouter([
       },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
+      { 
+        path: 'project/:projectId', // Route for viewing a single project
+        element: (
+          <ProtectedRoute>
+            <ProjectViewPage />
+          </ProtectedRoute>
+        ) 
+      },
       // More routes will be added here for projects, tasks etc.
       // These will also likely be wrapped in <ProtectedRoute>
-      // Example:
-      // { 
-      //   path: 'projects', 
-      //   element: (
-      //     <ProtectedRoute>
-      //       <ProjectsPage /> 
-      //     </ProtectedRoute>
-      //   ) 
-      // },
     ],
   },
   {

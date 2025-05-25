@@ -1,0 +1,35 @@
+.comment-item {
+  background-color: #f8f9fa; /* A very light grey, slightly different from task card */
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.03);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.commenter-name {
+  font-weight: bold;
+  color: #495057; /* Darker grey for name */
+  font-size: 0.9em;
+}
+
+.comment-timestamp {
+  font-size: 0.75em;
+  color: #6c757d; /* Lighter grey for timestamp */
+}
+
+.comment-content {
+  font-size: 0.95em;
+  color: #212529; /* Standard text color */
+  white-space: pre-wrap; /* Preserve line breaks and spacing in comment */
+  word-wrap: break-word; /* Break long words to prevent overflow */
+  margin-top: 0;
+  margin-bottom: 0; /* Remove default paragraph margin */
+}
