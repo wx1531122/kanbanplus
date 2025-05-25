@@ -16,12 +16,7 @@ const ProjectViewPage = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [currentStageId, setCurrentStageId] = useState(null);
 
-  const [projectActivities, setProjectActivities] = useState([]);
-  const [loadingProjectActivities, setLoadingProjectActivities] = useState(false);
-  const [projectActivityError, setProjectActivityError] = useState(null);
-  
   // Tab state for ProjectViewPage content (e.g., 'board' or 'activity')
-  const [activeProjectViewTab, setActiveProjectViewTab] = useState('board');
 
 
   const fetchProjectData = useCallback(async () => {
@@ -38,24 +33,9 @@ const ProjectViewPage = () => {
     }
   }, [projectId]);
 
-  const fetchProjectActivities = useCallback(async () => {
-    setLoadingProjectActivities(true);
-    setProjectActivityError(null);
-    try {
-      const response = await apiClient.get(`/projects/${projectId}/activities`);
-      setProjectActivities(response.data || []);
-    } catch (err) {
-      console.error("Failed to fetch project activities:", err);
-      setProjectActivityError(err.response?.data?.message || 'Could not load project activities.');
-    } finally {
-      setLoadingProjectActivities(false);
-    }
-  }, [projectId]);
-
   useEffect(() => {
     fetchProjectData();
-    fetchProjectActivities(); // Fetch activities when project ID changes
-  }, [projectId, fetchProjectData, fetchProjectActivities]);
+  }, [projectId, fetchProjectData]);
 
   const handleOpenModalForCreate = (stageId) => {
     setEditingTask(null);
@@ -102,7 +82,7 @@ const ProjectViewPage = () => {
       <h2>{project.name}</h2>
       <p>{project.description}</p>
       <div style={{ display: 'flex', overflowX: 'auto' }}>
-        {stages.map(stage => (
+        {(project?.stages || []).map(stage => (
           <StageColumn 
             key={stage.id} 
             stage={stage}

@@ -37,7 +37,7 @@ const HomePage = () => {
         return;
     }
     try {
-        const response = await apiClient.post('/projects', { 
+        await apiClient.post('/projects', { 
             name: newProjectName, 
             description: newProjectDescription 
         });

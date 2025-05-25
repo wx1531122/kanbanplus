@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom'; // Needed because HomePage uses <Link>
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -86,7 +86,7 @@ describe('HomePage', () => {
     );
     // Mock GET /projects again for the refetch after creation
     server.use(
-        http.get('/api/projects', ({request}) => {
+        http.get('/api/projects', () => { // Removed unused 'request' parameter
             if(postCalled) { // after project creation
                  return HttpResponse.json([...mockProjects, {id:3, ...newProjectData, created_at: new Date().toISOString()} ]);
             }

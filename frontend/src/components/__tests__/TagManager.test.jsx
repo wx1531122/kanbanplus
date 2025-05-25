@@ -5,7 +5,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { server } from '../../mocks/server'; // MSW server
 import { http, HttpResponse } from 'msw'; // MSW for overriding handlers
 import TagManager from '../TagManager';
-import apiClient from '../../services/api'; // To spy on if needed, though MSW handles calls
 
 // Spy on apiClient methods if direct checks are needed beyond MSW.
 // For this component, MSW should cover most interactions.
@@ -82,7 +81,7 @@ describe('TagManager', () => {
     render(<TagManager task={mockTaskWithoutTags} onTaskTagsUpdated={mockOnTaskTagsUpdated} />);
     
     await waitFor(() => {
-      const datalist = screen.getByTestId('all-tags-datalist'); // Assuming you add data-testid to datalist
+      screen.getByTestId('all-tags-datalist'); // Assuming you add data-testid to datalist
       // For some reason, directly querying datalist or its options can be tricky with RTL depending on browser/JSDOM.
       // Let's check if the input has the list attribute.
       expect(screen.getByPlaceholderText('Add a tag...')).toHaveAttribute('list', 'all-tags-datalist');
@@ -201,7 +200,7 @@ describe('TagManager', () => {
     // Wait for tags to load (MSW will provide them)
     await waitFor(() => {
         // This assumes you've added data-testid="all-tags-datalist" to your <datalist>
-        const datalist = screen.getByTestId('all-tags-datalist'); 
+        screen.getByTestId('all-tags-datalist'); 
         // JSDOM doesn't fully support datalist options inspection easily.
         // We can check if the input has the list attribute.
         expect(screen.getByPlaceholderText('Add a tag...')).toHaveAttribute('list', 'all-tags-datalist');
