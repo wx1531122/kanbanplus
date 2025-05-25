@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000" # Expose backend on host port 5000 for direct API access / Nginx proxy target
+    volumes:
+      - kanban_db_data:/app/instance # Persist SQLite database
+    env_file:
+      - ./backend/.env.prod # Load production environment variables
+    # Environment variables like FLASK_APP, FLASK_ENV, DATABASE_URL, JWT_SECRET_KEY
+    # are expected to be in .env.prod
+    # Example:
+    # FLASK_APP=run.py
+    # FLASK_ENV=production
+    # DATABASE_URL=sqlite:///instance/prod.db # Or dev.db if preferred for compose up
+    # JWT_SECRET_KEY=your_jwt_secret_key_here
+    # SECRET_KEY=your_flask_secret_key_here
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Map host port 3000 to Nginx container port 80
+    depends_on:
+      - backend # Ensures backend is started before frontend, useful for proxy readiness
+    restart: unless-stopped
+
+volumes:
+  kanban_db_data: # Named volume for SQLite data persistence
+    driver: local

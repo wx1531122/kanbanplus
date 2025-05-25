@@ -19,6 +19,7 @@ def test_create_comment_success(test_client, auth_headers, created_task_data, db
     assert data['content'] == comment_content
     assert data['task_id'] == task_id
     assert data['user_id'] == auth_headers['user_id']
+    assert data['commenter_username'] == auth_headers['username']
     
     # Verify in DB
     comment_db = db_session.query(Comment).filter_by(id=data['id']).first()
@@ -41,7 +42,9 @@ def test_get_comments_for_task(test_client, auth_headers, created_task_data, db_
     assert isinstance(data, list)
     assert len(data) == 2
     assert data[0]['content'] == 'First comment' # Ordered by created_at asc
+    assert data[0]['commenter_username'] == auth_headers['username']
     assert data[1]['content'] == 'Second comment'
+    assert data[1]['commenter_username'] == auth_headers['username']
 
 def test_create_comment_non_existent_task(test_client, auth_headers):
     request_headers = {'Authorization': auth_headers['Authorization']}

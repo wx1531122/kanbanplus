@@ -178,12 +178,10 @@ class Comment(db.Model):
             'content': self.content,
             'task_id': self.task_id,
             'user_id': self.user_id,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            'commenter_username': self.commenter.username if self.commenter else "Unknown",
+            'created_at': self.created_at.isoformat() if self.created_at else None, # Added None check for safety
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None  # Added None check for safety
         }
-        if include_subtasks:
-            data['subtasks'] = [subtask.to_dict() for subtask in self.subtasks.order_by(SubTask.order).all()]
-        return data
 
 class SubTask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
