@@ -36,10 +36,8 @@ const CommentItem = ({ comment }) => {
   // 'updated_at': self.updated_at.isoformat()
   // }
   // So, `commenter_username` is NOT directly available. This is a limitation.
-  // For now, I will display User ID and make a note.
-
-  const commenterName = comment.user_username || `User ID: ${comment.user_id}`;
-
+  // Backend Comment.to_dict() now includes `commenter_username`.
+  const commenterName = comment.commenter_username || `User ID: ${comment.user_id}`; // Fallback if still missing for some reason
 
   return (
     <div className="comment-item">
