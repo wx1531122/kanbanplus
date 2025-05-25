@@ -110,7 +110,8 @@ def registered_user(test_client, db_session):
             )
     elif response.status_code != 201:
         pytest.fail(
-            f"User registration failed with status {response.status_code}: {response.json}"
+            f"User registration failed with status {response.status_code}: "
+            f"{response.json}"
         )
 
     from backend.app.models import User  # Import here to ensure app context
@@ -139,7 +140,8 @@ def auth_headers(test_client, registered_user):
     )
     if login_response.status_code != 200:
         pytest.fail(
-            f"Login failed for user {registered_user['email']}: {login_response.json}"
+            f"Login failed for user {registered_user['email']}: "
+            f"{login_response.json}"
         )
 
     access_token = login_response.json["access_token"]
@@ -187,7 +189,9 @@ def created_task_data(test_client, auth_headers, created_project_data, db_sessio
     # Create Stage
     stage_name = "Shared Test Stage"
     stage_response = test_client.post(
-        f"/api/projects/{project_id}/stages", headers=headers, json={"name": stage_name}
+        f"/api/projects/{project_id}/stages",
+        headers=headers,
+        json={"name": stage_name},
     )
     if stage_response.status_code != 201:
         pytest.fail(f"Stage creation failed: {stage_response.json}")

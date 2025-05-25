@@ -20,7 +20,10 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 
 @api_bp.route("/health", methods=["GET"])
 def health_check():
-    return jsonify({"status": "healthy", "message": "API is up and running!"}), 200
+    return jsonify({
+        "status": "healthy",
+        "message": "API is up and running!"
+    }), 200
 
 
 # Test/Protected Route (can be removed or kept for testing)
@@ -189,7 +192,8 @@ def update_stage(stage_id):
 
     if not stage:
         return jsonify({"message": "Stage not found"}), 404
-    if stage.project.user_id != current_user_id:  # Check ownership via project
+    # Check ownership via project
+    if stage.project.user_id != current_user_id:
         return jsonify({"message": "Access forbidden to this stage"}), 403
 
     data = request.get_json()
@@ -257,11 +261,12 @@ def create_task(stage_id):
             due_date_obj = datetime.fromisoformat(due_date_str)
         except ValueError:
             return (
-                jsonify(
-                    {
-                        "message": "Invalid due_date format. Use ISO format (YYYY-MM-DDTHH:MM:SS) or (YYYY-MM-DD)."
-                    }
-                ),
+                jsonify({
+                    "message": (
+                        "Invalid due_date format. Use ISO format "
+                        "(YYYY-MM-DDTHH:MM:SS) or (YYYY-MM-DD)."
+                    )
+                }),
                 400,
             )
 
@@ -358,11 +363,12 @@ def update_task(task_id):
                 task.due_date = datetime.fromisoformat(due_date_str)
             except ValueError:
                 return (
-                    jsonify(
-                        {
-                            "message": "Invalid due_date format. Use ISO format (YYYY-MM-DDTHH:MM:SS) or (YYYY-MM-DD)."
-                        }
-                    ),
+                    jsonify({
+                        "message": (
+                            "Invalid due_date format. Use ISO format "
+                            "(YYYY-MM-DDTHH:MM:SS) or (YYYY-MM-DD)."
+                        )
+                    }),
                     400,
                 )
         else:  # Allow clearing due_date
@@ -376,7 +382,9 @@ def update_task(task_id):
             if not new_stage:
                 return jsonify({"message": "New stage not found"}), 404
             if new_stage.project.user_id != current_user_id:
-                return jsonify({"message": "Access forbidden to new stage"}), 403
+                return jsonify({
+                    "message": "Access forbidden to new stage"
+                }), 403
             task.stage_id = new_stage_id
             updated = True
 
@@ -410,7 +418,10 @@ def delete_task(task_id):
     user = User.query.get(current_user_id)
     record_activity(
         action_type="TASK_DELETED",
-        description=f"User '{user.username}' deleted task '{task.content[:30]}...' from stage '{task.stage.name}'",
+        description=(
+            f"User '{user.username}' deleted task "
+            f"'{task.content[:30]}...' from stage '{task.stage.name}'"
+        ),
         user_id=current_user_id,
         project_id=task.stage.project.id,
         task_id=task.id,
@@ -443,14 +454,15 @@ def create_subtask(task_id):
     order = data.get("order")  # Can be None
 
     if not isinstance(completed, bool):
-        return (
-            jsonify(
-                {"message": "Invalid format for completed flag, must be boolean."}),
-            400,
-        )
+        return jsonify({
+            "message": "Invalid format for completed flag, must be boolean."
+        }), 400
 
     subtask = SubTask(
-        content=content, parent_task_id=task.id, completed=completed, order=order
+        content=content,
+        parent_task_id=task.id,
+        completed=completed,
+        order=order,
     )
     db.session.add(subtask)
     db.session.commit()
@@ -498,12 +510,9 @@ def update_subtask(subtask_id):
     if "completed" in data:
         completed_val = data["completed"]
         if not isinstance(completed_val, bool):
-            return (
-                jsonify(
-                    {"message": "Invalid format for completed flag, must be boolean."}
-                ),
-                400,
-            )
+            return jsonify({
+                "message": "Invalid format for completed flag, must be boolean."
+            }), 400
         subtask.completed = completed_val
         updated = True
     if "order" in data:
@@ -650,7 +659,8 @@ def create_tag():
 
     name = data["name"].strip()
     existing_tag = Tag.query.filter(
-        db.func.lower(Tag.name) == name.lower()).first()
+        db.func.lower(Tag.name) == name.lower()
+    ).first()
 
     if existing_tag:
         return jsonify(existing_tag.to_dict()), 200
@@ -664,16 +674,15 @@ def create_tag():
     ):  # Handles potential race conditions if another request creates the same tag
         db.session.rollback()
         existing_tag = Tag.query.filter(
-            db.func.lower(Tag.name) == name.lower()).first()
+            db.func.lower(Tag.name) == name.lower()
+        ).first()
         if existing_tag:
             return jsonify(existing_tag.to_dict()), 200
         else:
-            # This case should ideally not be reached if the first check was done correctly
-            return (
-                jsonify(
-                    {"message": "Error creating tag, possibly due to a conflict."}),
-                500,
-            )
+            # This case should ideally not be reached
+            return jsonify({
+                "message": "Error creating tag, possibly due to a conflict."
+            }), 500
 
     return jsonify(tag.to_dict()), 201
 
@@ -727,7 +736,9 @@ def add_tag_to_task(task_id):
             jsonify(
                 {
                     "message": "Task already has this tag",
-                    "task": task.to_dict(include_subtasks=True, include_tags=True),
+                    "task": task.to_dict(
+                        include_subtasks=True, include_tags=True
+                    ),
                 }
             ),
             200,
@@ -747,7 +758,9 @@ def add_tag_to_task(task_id):
         project_id=task.stage.project.id,
         task_id=task.id,
     )
-    return jsonify(task.to_dict(include_subtasks=True, include_tags=True)), 200
+    return jsonify(
+        task.to_dict(include_subtasks=True, include_tags=True)
+    ), 200
 
 
 @api_bp.route("/tasks/<int:task_id>/tags/<int:tag_id>", methods=["DELETE"])

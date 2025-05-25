@@ -233,12 +233,14 @@ class Comment(db.Model):
             "commenter_username": (
                 self.commenter.username if self.commenter else "Unknown"
             ),
+            # Added None check for safety
             "created_at": (
                 self.created_at.isoformat() if self.created_at else None
-            ),  # Added None check for safety
+            ),
+            # Added None check for safety
             "updated_at": (
                 self.updated_at.isoformat() if self.updated_at else None
-            ),  # Added None check for safety
+            ),
         }
 
 

@@ -26,7 +26,8 @@ def get_engine():
 
 def get_engine_url():
     try:
-        return get_engine().url.render_as_string(hide_password=False).replace("%", "%%")
+        url_str = get_engine().url.render_as_string(hide_password=False)
+        return url_str.replace("%", "%%")
     except AttributeError:
         return str(get_engine().url).replace("%", "%%")
 
