@@ -42,7 +42,8 @@ const TaskCard = ({ task, onEditTask }) => {
     try {
       const date = new Date(isoString);
       return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch (_e) {
+    // eslint-disable-next-line no-unused-vars
+    } catch (e) {
       return 'Invalid date';
     }
   };

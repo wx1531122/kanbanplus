@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { server } from '../../mocks/server';
 import { http, HttpResponse } from 'msw';
@@ -22,7 +22,8 @@ vi.mock('../../components/StageColumn', () => ({
         </div>
     )
 }));
-vi.mock('../../components/TaskModal', () => ({ 
+vi.mock('../../components/TaskModal', () => ({
+    // eslint-disable-next-line no-unused-vars
     default: ({ isOpen, onClose, onSave, task, stageId, onTaskUpdated }) => {
         if (!isOpen) return null;
         return (

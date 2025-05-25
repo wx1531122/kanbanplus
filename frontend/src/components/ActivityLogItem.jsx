@@ -10,7 +10,8 @@ const ActivityLogItem = ({ activity }) => {
         year: 'numeric', month: 'short', day: 'numeric', 
         hour: '2-digit', minute: '2-digit' 
       });
-    } catch (_e) {
+    // eslint-disable-next-line no-unused-vars
+    } catch (e) {
       return 'Invalid date';
     }
   };

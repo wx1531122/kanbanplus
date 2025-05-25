@@ -1,7 +1,14 @@
 from backend.app import db
-from backend.app.models import ActivityLog, User
+from backend.app.models import ActivityLog
 
-def record_activity(action_type: str, user_id: int, description: str, project_id: int = None, task_id: int = None):
+
+def record_activity(
+    action_type: str,
+    user_id: int,
+    description: str,
+    project_id: int = None,
+    task_id: int = None,
+):
     """
     Records an activity in the ActivityLog.
 
@@ -18,7 +25,7 @@ def record_activity(action_type: str, user_id: int, description: str, project_id
             user_id=user_id,
             description=description,
             project_id=project_id,
-            task_id=task_id
+            task_id=task_id,
         )
         db.session.add(activity)
         db.session.commit()

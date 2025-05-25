@@ -41,7 +41,14 @@ export const AuthProvider = ({ children }) => {
   // The register function here is more of a placeholder if needed for context logic
   // Typically, registration leads to login or just displays a success message.
   // The actual API call is in RegisterPage.jsx
-  const register = async (username, email, password) => {
+  const register = async (
+    // eslint-disable-next-line no-unused-vars
+    username,
+    // eslint-disable-next-line no-unused-vars
+    email,
+    // eslint-disable-next-line no-unused-vars
+    password
+  ) => {
     // This function might not be strictly necessary in AuthContext
     // if RegisterPage handles the API call and redirects.
     // However, it could be here if context needs to manage some part of registration flow.
