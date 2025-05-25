@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import apiClient from '../services/api';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
-import ActivityLogList from './ActivityLogList';
 import TagManager from './TagManager'; // Import TagManager
 import './TaskModal.css';
 
@@ -18,13 +17,6 @@ const TaskModal = ({ task, stageId, isOpen, onClose, onSave, onTaskUpdated }) =>
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [commentError, setCommentError] = useState(null);
-
-  const [activities, setActivities] = useState([]);
-  const [loadingActivities, setLoadingActivities] = useState(false);
-  const [activityError, setActivityError] = useState(null);
-
-  const [activeTab, setActiveTab] = useState('details'); 
-
 
   // Update internal state when the task prop changes (e.g., when opening modal for different tasks)
   useEffect(() => {
@@ -50,43 +42,22 @@ const TaskModal = ({ task, stageId, isOpen, onClose, onSave, onTaskUpdated }) =>
     }
   }, [currentTask, isOpen]);
 
-  const fetchActivities = useCallback(async () => {
-    if (currentTask && currentTask.id && isOpen) {
-      setLoadingActivities(true);
-      setActivityError(null);
-      try {
-        const response = await apiClient.get(`/tasks/${currentTask.id}/activities`);
-        setActivities(response.data || []);
-      } catch (err) {
-        console.error("Failed to fetch task activities:", err);
-        setActivityError(err.response?.data?.message || 'Could not load activities.');
-      } finally {
-        setLoadingActivities(false);
-      }
-    } else {
-      setActivities([]);
-    }
-  }, [currentTask, isOpen]);
-
   useEffect(() => {
     if (isOpen) {
-      setActiveTab('details');
       if (currentTask) {
         setContent(currentTask.content || '');
         setDueDate(currentTask.due_date ? currentTask.due_date.split('T')[0] : '');
         setPriority(currentTask.priority || 'Medium');
         fetchComments(); 
-        fetchActivities();
       } else { // New task
         setContent('');
         setDueDate('');
         setPriority('Medium');
         setComments([]);
-        setActivities([]);
         setCurrentTask(null); // Ensure currentTask is null for new tasks
       }
     }
-  }, [isOpen, currentTask, fetchComments, fetchActivities]);
+  }, [isOpen, currentTask, fetchComments]);
 
   if (!isOpen) return null;
 

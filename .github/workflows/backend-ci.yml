@@ -74,7 +74,6 @@ jobs:
       - name: Build and push backend Docker image to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
-        working-directory: . # Ensure context is repo root
         with:
           context: ./backend # Path to the backend Dockerfile context
           file: ./backend/Dockerfile # Path to the backend Dockerfile
