@@ -33,7 +33,7 @@ const RegisterPage = () => {
       setUsername('');
       setEmail('');
       setPassword('');
-      
+
       setTimeout(() => {
         navigate('/login');
       }, 2000); // Redirect after 2 seconds
@@ -47,7 +47,15 @@ const RegisterPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #eee', borderRadius: '8px' }}>
+    <div
+      style={{
+        maxWidth: '400px',
+        margin: '2rem auto',
+        padding: '2rem',
+        border: '1px solid #eee',
+        borderRadius: '8px',
+      }}
+    >
       <h2>Register</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}

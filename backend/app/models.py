@@ -13,8 +13,7 @@ class User(db.Model):
     )
     projects = db.relationship("Project", backref="author", lazy="dynamic")
     comments = db.relationship("Comment", backref="commenter", lazy="dynamic")
-    activity_logs = db.relationship(
-        "ActivityLog", backref="user", lazy="dynamic")
+    activity_logs = db.relationship("ActivityLog", backref="user", lazy="dynamic")
 
     def set_password(self, password):
         from werkzeug.security import generate_password_hash
@@ -77,8 +76,7 @@ class Project(db.Model):
 class Stage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    project_id = db.Column(db.Integer, db.ForeignKey(
-        "project.id"), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     order = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
@@ -153,9 +151,7 @@ class Task(db.Model):
         }
         if include_subtasks:
             subtasks_query = self.subtasks.order_by(SubTask.order).all()
-            data["subtasks"] = [
-                subtask.to_dict() for subtask in subtasks_query
-            ]
+            data["subtasks"] = [subtask.to_dict() for subtask in subtasks_query]
         return data
 
 
@@ -173,8 +169,7 @@ class Tag(db.Model):
 # Association table for Task and Tag many-to-many relationship
 task_tag = db.Table(
     "task_tag",
-    db.Column("task_id", db.Integer, db.ForeignKey(
-        "task.id"), primary_key=True),
+    db.Column("task_id", db.Integer, db.ForeignKey("task.id"), primary_key=True),
     db.Column("tag_id", db.Integer, db.ForeignKey("tag.id"), primary_key=True),
 )
 
@@ -188,8 +183,7 @@ class ActivityLog(db.Model):
         db.Text, nullable=False
     )  # e.g., "User 'X' created task 'Y'"
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    project_id = db.Column(
-        db.Integer, db.ForeignKey("project.id"), nullable=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=True)
     task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -234,21 +228,16 @@ class Comment(db.Model):
                 self.commenter.username if self.commenter else "Unknown"
             ),
             # Added None check for safety
-            "created_at": (
-                self.created_at.isoformat() if self.created_at else None
-            ),
+            "created_at": (self.created_at.isoformat() if self.created_at else None),
             # Added None check for safety
-            "updated_at": (
-                self.updated_at.isoformat() if self.updated_at else None
-            ),
+            "updated_at": (self.updated_at.isoformat() if self.updated_at else None),
         }
 
 
 class SubTask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    parent_task_id = db.Column(
-        db.Integer, db.ForeignKey("task.id"), nullable=False)
+    parent_task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
     completed = db.Column(db.Boolean, default=False)
     order = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

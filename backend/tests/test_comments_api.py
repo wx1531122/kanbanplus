@@ -126,11 +126,8 @@ def another_user_auth_headers(test_client, db_session):  # Added db_session
     login_response = test_client.post(
         "/api/auth/login", json={"email": email, "password": password}
     )
-    assert (
-        login_response.status_code == 200
-    ), (
-        f"Login failed for another_user: "
-        f"{login_response.json}"
+    assert login_response.status_code == 200, (
+        f"Login failed for another_user: " f"{login_response.json}"
     )
     access_token = login_response.json["access_token"]
     return {"Authorization": f"Bearer {access_token}"}
@@ -226,8 +223,7 @@ def test_create_comment_activity_log(
             comment_activity_found = True
             break
     assert comment_activity_found, (
-        "COMMENT_ADDED activity not found for new comment in project "
-        "activities"
+        "COMMENT_ADDED activity not found for new comment in project " "activities"
     )
 
     # Check activity log for the task
@@ -248,6 +244,5 @@ def test_create_comment_activity_log(
             task_comment_activity_found = True
             break
     assert task_comment_activity_found, (
-        "COMMENT_ADDED activity not found for new comment on task "
-        "activities"
+        "COMMENT_ADDED activity not found for new comment on task " "activities"
     )

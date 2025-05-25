@@ -18,7 +18,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Optional: Add response interceptor for handling 401 errors globally

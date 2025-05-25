@@ -25,7 +25,9 @@ describe('TaskCard', () => {
 
   it('renders assignee if present', () => {
     render(<TaskCard task={mockTaskBase} onEditTask={mockOnEditTask} />);
-    expect(screen.getByText(`Assignee: ${mockTaskBase.assignee}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Assignee: ${mockTaskBase.assignee}`),
+    ).toBeInTheDocument();
   });
 
   it('does not render assignee if not present', () => {
@@ -38,9 +40,14 @@ describe('TaskCard', () => {
     render(<TaskCard task={mockTaskBase} onEditTask={mockOnEditTask} />);
     // Default toLocaleDateString format might vary. Check for parts.
     // e.g., "Dec 31, 2023" or "31 Dec 2023"
-    const expectedDate = new Date(mockTaskBase.due_date).toLocaleDateString(undefined, { 
-      year: 'numeric', month: 'short', day: 'numeric' 
-    });
+    const expectedDate = new Date(mockTaskBase.due_date).toLocaleDateString(
+      undefined,
+      {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      },
+    );
     expect(screen.getByText(`Due: ${expectedDate}`)).toBeInTheDocument();
   });
 
@@ -49,17 +56,23 @@ describe('TaskCard', () => {
     render(<TaskCard task={taskWithoutDueDate} onEditTask={mockOnEditTask} />);
     expect(screen.getByText('Due: Not set')).toBeInTheDocument();
   });
-  
+
   it('renders "Due: Invalid date" if due date is invalid', () => {
-    const taskWithInvalidDueDate = { ...mockTaskBase, due_date: 'invalid-date' };
-    render(<TaskCard task={taskWithInvalidDueDate} onEditTask={mockOnEditTask} />);
+    const taskWithInvalidDueDate = {
+      ...mockTaskBase,
+      due_date: 'invalid-date',
+    };
+    render(
+      <TaskCard task={taskWithInvalidDueDate} onEditTask={mockOnEditTask} />,
+    );
     expect(screen.getByText('Due: Invalid date')).toBeInTheDocument();
   });
 
-
   it('renders priority with specific style', () => {
     render(<TaskCard task={mockTaskBase} onEditTask={mockOnEditTask} />);
-    const priorityElement = screen.getByText(`Priority: ${mockTaskBase.priority}`);
+    const priorityElement = screen.getByText(
+      `Priority: ${mockTaskBase.priority}`,
+    );
     expect(priorityElement).toBeInTheDocument();
     // Check for style - this is a bit implementation-dependent.
     // The component uses inline styles: color: priorityColors[task.priority]
@@ -88,8 +101,8 @@ describe('TaskCard', () => {
     // A more robust way might be to check for absence of any tag-like elements.
     const tagsContainer = screen.queryByText('Urgent')?.closest('div'); // find an element and go up
     if (tagsContainer && tagsContainer.innerHTML.includes('Urgent')) {
-        // This means the tag was found, which is not what we want.
-        // However, the queryByText('Urgent') itself would return null.
+      // This means the tag was found, which is not what we want.
+      // However, the queryByText('Urgent') itself would return null.
     }
     expect(screen.queryByText('Urgent')).not.toBeInTheDocument();
   });

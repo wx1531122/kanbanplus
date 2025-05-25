@@ -8,7 +8,11 @@ const ActivityLogList = ({ activities, loading, error }) => {
   }
 
   if (error) {
-    return <p className="activity-list-message activity-list-error">Error loading activities: {error}</p>;
+    return (
+      <p className="activity-list-message activity-list-error">
+        Error loading activities: {error}
+      </p>
+    );
   }
 
   if (!activities || activities.length === 0) {
@@ -17,7 +21,7 @@ const ActivityLogList = ({ activities, loading, error }) => {
 
   return (
     <div className="activity-log-list">
-      {activities.map(activity => (
+      {activities.map((activity) => (
         <ActivityLogItem key={activity.id} activity={activity} />
       ))}
     </div>

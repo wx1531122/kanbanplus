@@ -44,8 +44,7 @@ def test_get_project_activities_success(
 
     # Find PROJECT_CREATED activity
     project_created_activity = next(
-        (act for act in activities if act["action_type"]
-         == "PROJECT_CREATED"), None
+        (act for act in activities if act["action_type"] == "PROJECT_CREATED"), None
     )
     assert project_created_activity is not None
     desc_str = f"User '{username}' created project '{project_name}'"
@@ -55,8 +54,7 @@ def test_get_project_activities_success(
 
     # Find TASK_CREATED activity
     task_created_activity = next(
-        (act for act in activities if act["action_type"]
-         == "TASK_CREATED"), None
+        (act for act in activities if act["action_type"] == "TASK_CREATED"), None
     )
     assert task_created_activity is not None
     desc_str = (
@@ -70,8 +68,7 @@ def test_get_project_activities_success(
 
     # Find COMMENT_ADDED activity
     comment_added_activity = next(
-        (act for act in activities if act["action_type"]
-         == "COMMENT_ADDED"), None
+        (act for act in activities if act["action_type"] == "COMMENT_ADDED"), None
     )
     assert comment_added_activity is not None
     desc_str = f"User '{username}' commented on task '{task_content_ellipsis}'"
@@ -119,13 +116,10 @@ def test_get_task_activities_success(
 
     # TASK_UPDATED should be the most recent
     task_updated_activity = next(
-        (act for act in activities if act["action_type"]
-         == "TASK_UPDATED"), None
+        (act for act in activities if act["action_type"] == "TASK_UPDATED"), None
     )
     assert task_updated_activity is not None
-    desc_str = (
-        f"User '{username}' updated task '{updated_task_content[:30]}...'"
-    )
+    desc_str = f"User '{username}' updated task '{updated_task_content[:30]}...'"
     assert desc_str in task_updated_activity["description"]
     assert task_updated_activity["user_username"] == username
     assert task_updated_activity["task_id"] == task_id
@@ -133,16 +127,13 @@ def test_get_task_activities_success(
 
     # COMMENT_ADDED
     comment_added_activity = next(
-        (act for act in activities if act["action_type"]
-         == "COMMENT_ADDED"), None
+        (act for act in activities if act["action_type"] == "COMMENT_ADDED"), None
     )
     assert comment_added_activity is not None
     # Note: The description for comment activity uses the task content *at the time of commenting*.
     # If the task was updated after the comment, the description reflects the older task content.
     # Here, task_content_ellipsis is the original content. The update happened *after* the comment.
-    desc_str = (
-        f"User '{username}' commented on task '{task_content_ellipsis}'"
-    )
+    desc_str = f"User '{username}' commented on task '{task_content_ellipsis}'"
     assert desc_str in comment_added_activity["description"]
     assert comment_added_activity["user_username"] == username
     assert comment_added_activity["task_id"] == task_id
@@ -150,8 +141,7 @@ def test_get_task_activities_success(
 
     # TASK_CREATED
     task_created_activity = next(
-        (act for act in activities if act["action_type"]
-         == "TASK_CREATED"), None
+        (act for act in activities if act["action_type"] == "TASK_CREATED"), None
     )
     assert task_created_activity is not None
     assert task_created_activity["user_username"] == username
@@ -170,8 +160,7 @@ def test_get_activities_non_existent_project(test_client, auth_headers):
 
 def test_get_activities_non_existent_task(test_client, auth_headers):
     request_headers = {"Authorization": auth_headers["Authorization"]}
-    response = test_client.get(
-        "/api/tasks/99998/activities", headers=request_headers)
+    response = test_client.get("/api/tasks/99998/activities", headers=request_headers)
     assert response.status_code == 404
     assert response.json["message"] == "Task not found"
 
@@ -180,8 +169,7 @@ def test_get_activities_unauthorized_no_token(test_client, created_task_data):
     project_id = created_task_data["project_id"]
     task_id = created_task_data["task_id"]
 
-    response_project = test_client.get(
-        f"/api/projects/{project_id}/activities")
+    response_project = test_client.get(f"/api/projects/{project_id}/activities")
     assert response_project.status_code == 401
 
     response_task = test_client.get(f"/api/tasks/{task_id}/activities")
@@ -297,9 +285,7 @@ def test_task_deletion_logs_activity(
             delete_activity_found = True
             assert f"User '{username}' deleted task" in activity["description"]
             break
-    assert delete_activity_found, (
-        "TASK_DELETED activity not found for deleted task"
-    )
+    assert delete_activity_found, "TASK_DELETED activity not found for deleted task"
 
     # Task activities endpoint for the deleted task should ideally be 404 or return specific logs
     # For now, we'll assume the task is gone, so its specific activity log might not be the primary check point after deletion

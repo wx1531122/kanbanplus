@@ -21,10 +21,12 @@ vi.mock('react-router-dom', async () => {
 const renderLoginPage = () => {
   return render(
     <MemoryRouter>
-      <AuthProvider> {/* LoginPage uses AuthContext.login */}
+      <AuthProvider>
+        {' '}
+        {/* LoginPage uses AuthContext.login */}
         <LoginPage />
       </AuthProvider>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 };
 
@@ -39,8 +41,11 @@ describe('LoginPage', () => {
         if (email === 'test@example.com') {
           return HttpResponse.json({ access_token: 'mock_token' });
         }
-        return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 });
-      })
+        return HttpResponse.json(
+          { message: 'Invalid credentials' },
+          { status: 401 },
+        );
+      }),
     );
   });
 
@@ -65,9 +70,9 @@ describe('LoginPage', () => {
     // AuthContext.login is called internally by LoginPage's handleSubmit
     // We can spy on localStorage.setItem to confirm token storage
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
-    
+
     renderLoginPage();
-    
+
     await userEvent.type(screen.getByLabelText('Email:'), 'test@example.com');
     await userEvent.type(screen.getByLabelText('Password:'), 'password123');
     await userEvent.click(screen.getByRole('button', { name: 'Login' }));
@@ -84,8 +89,11 @@ describe('LoginPage', () => {
   it('displays error message on failed login (e.g. invalid credentials)', async () => {
     server.use(
       http.post('/api/auth/login', () => {
-        return HttpResponse.json({ message: 'Invalid email or password' }, { status: 401 });
-      })
+        return HttpResponse.json(
+          { message: 'Invalid email or password' },
+          { status: 401 },
+        );
+      }),
     );
     renderLoginPage();
 
@@ -93,29 +101,33 @@ describe('LoginPage', () => {
     await userEvent.type(screen.getByLabelText('Password:'), 'wrongpassword');
     await userEvent.click(screen.getByRole('button', { name: 'Login' }));
 
-    expect(await screen.findByText('Login failed: Invalid email or password')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Login failed: Invalid email or password'),
+    ).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('displays error message if API returns non-JSON error or network error', async () => {
     server.use(
       http.post('/api/auth/login', () => {
-        return new HttpResponse("Server Error", { status: 500 });
-      })
+        return new HttpResponse('Server Error', { status: 500 });
+      }),
     );
     renderLoginPage();
 
     await userEvent.type(screen.getByLabelText('Email:'), 'test@example.com');
     await userEvent.type(screen.getByLabelText('Password:'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Login' }));
-    
+
     // The error message might be generic if it's not JSON from API
-    expect(await screen.findByText(/Login failed:/)).toBeInTheDocument(); 
+    expect(await screen.findByText(/Login failed:/)).toBeInTheDocument();
   });
-  
+
   it('shows a link to the registration page', () => {
     renderLoginPage();
-    const registerLink = screen.getByRole('link', { name: "Don't have an account? Register" });
+    const registerLink = screen.getByRole('link', {
+      name: "Don't have an account? Register",
+    });
     expect(registerLink).toBeInTheDocument();
     expect(registerLink).toHaveAttribute('href', '/register');
   });

@@ -37,9 +37,9 @@ const renderTaskModal = (props) => {
   // Wrap with AuthProvider if any child component relies on AuthContext,
   // though for unit tests, direct prop passing or simpler mocks are often preferred.
   return render(
-    <AuthProvider> 
+    <AuthProvider>
       <TaskModal {...defaultProps} />
-    </AuthProvider>
+    </AuthProvider>,
   );
 };
 
@@ -48,37 +48,66 @@ describe('TaskModal', () => {
     server.resetHandlers(); // Reset MSW handlers
     // Setup default handlers. Specific tests can override these.
     server.use(
-      http.get('/api/tasks/1/comments', () => HttpResponse.json([
-        { id: 1, content: 'Comment 1', commenter_username: 'UserA', created_at: new Date().toISOString() }
-      ])),
-      http.get('/api/tasks/1/activities', () => HttpResponse.json([
-        { id: 1, description: 'Activity 1', created_at: new Date().toISOString() }
-      ])),
-      http.get('/api/tags', () => HttpResponse.json([{id: 1, name: "ExistingTag"}, {id: 2, name: "GeneralTag"}]))
+      http.get('/api/tasks/1/comments', () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            content: 'Comment 1',
+            commenter_username: 'UserA',
+            created_at: new Date().toISOString(),
+          },
+        ]),
+      ),
+      http.get('/api/tasks/1/activities', () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            description: 'Activity 1',
+            created_at: new Date().toISOString(),
+          },
+        ]),
+      ),
+      http.get('/api/tags', () =>
+        HttpResponse.json([
+          { id: 1, name: 'ExistingTag' },
+          { id: 2, name: 'GeneralTag' },
+        ]),
+      ),
     );
   });
 
   describe('Create Mode', () => {
     it('renders create form with default values', () => {
       renderTaskModal();
-      expect(screen.getByRole('heading', { name: 'Create New Task' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Create New Task' }),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Content:')).toHaveValue('');
       expect(screen.getByLabelText('Due Date:')).toHaveValue('');
       expect(screen.getByLabelText('Priority:')).toHaveValue('Medium');
       // Comments, Activity, Tags sections should not be visible or be minimal for new task
-      expect(screen.queryByRole('tab', { name: 'Comments' })).not.toBeInTheDocument(); // Tabs only for existing tasks
-      expect(screen.queryByRole('heading', { name: 'Tags' })).not.toBeInTheDocument(); // TagManager not for new tasks
+      expect(
+        screen.queryByRole('tab', { name: 'Comments' }),
+      ).not.toBeInTheDocument(); // Tabs only for existing tasks
+      expect(
+        screen.queryByRole('heading', { name: 'Tags' }),
+      ).not.toBeInTheDocument(); // TagManager not for new tasks
     });
 
     it('allows typing and calls onSave with correct data for new task', async () => {
       const onSaveMock = vi.fn();
       renderTaskModal({ onSave: onSaveMock });
 
-      await userEvent.type(screen.getByLabelText('Content:'), 'New Task Content');
+      await userEvent.type(
+        screen.getByLabelText('Content:'),
+        'New Task Content',
+      );
       await userEvent.type(screen.getByLabelText('Due Date:'), '2024-02-01');
       await userEvent.selectOptions(screen.getByLabelText('Priority:'), 'Low');
-      
-      await userEvent.click(screen.getByRole('button', { name: 'Create Task' }));
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Create Task' }),
+      );
 
       expect(onSaveMock).toHaveBeenCalledWith({
         content: 'New Task Content',
@@ -92,15 +121,23 @@ describe('TaskModal', () => {
   describe('Edit Mode', () => {
     it('renders edit form populated with task data', async () => {
       renderTaskModal({ task: mockTask });
-      expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Edit Task' }),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Content:')).toHaveValue(mockTask.content);
       expect(screen.getByLabelText('Due Date:')).toHaveValue('2024-01-15');
       expect(screen.getByLabelText('Priority:')).toHaveValue(mockTask.priority);
-      
+
       // Tabs should be visible
-      expect(screen.getByRole('button', { name: 'Details' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Comments' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Activity' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Details' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Comments' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Activity' }),
+      ).toBeInTheDocument();
     });
 
     it('calls onSave with updated data for existing task', async () => {
@@ -108,14 +145,19 @@ describe('TaskModal', () => {
       renderTaskModal({ task: mockTask, onSave: onSaveMock });
 
       await userEvent.clear(screen.getByLabelText('Content:'));
-      await userEvent.type(screen.getByLabelText('Content:'), 'Updated Content');
-      await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+      await userEvent.type(
+        screen.getByLabelText('Content:'),
+        'Updated Content',
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Save Changes' }),
+      );
 
       expect(onSaveMock).toHaveBeenCalledWith({
         id: mockTask.id,
         content: 'Updated Content',
         due_date: '2024-01-15', // Original, not changed in this interaction
-        priority: 'High',     // Original
+        priority: 'High', // Original
         stage_id: mockTask.stage_id,
       });
     });
@@ -123,12 +165,14 @@ describe('TaskModal', () => {
     it('switches tabs and loads content (Comments)', async () => {
       renderTaskModal({ task: mockTask });
       await userEvent.click(screen.getByRole('button', { name: 'Comments' }));
-      
+
       expect(await screen.findByText('Comments')).toBeInTheDocument(); // Section heading
       expect(await screen.findByText('Comment 1')).toBeInTheDocument(); // From MSW mock
-      expect(screen.getByPlaceholderText('Write a comment...')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText('Write a comment...'),
+      ).toBeInTheDocument();
     });
-    
+
     it('switches tabs and loads content (Activity)', async () => {
       renderTaskModal({ task: mockTask });
       await userEvent.click(screen.getByRole('button', { name: 'Activity' }));
@@ -151,37 +195,73 @@ describe('TaskModal', () => {
       let activityFetchAfterComment = false;
 
       server.use(
-        http.post('/api/tasks/1/comments', async ({request}) => {
+        http.post('/api/tasks/1/comments', async ({ request }) => {
           commentPostCalled = true;
           const { content } = await request.json();
-          return HttpResponse.json({ id: 3, content, commenter_username: 'TestUser', created_at: new Date().toISOString() }, { status: 201});
+          return HttpResponse.json(
+            {
+              id: 3,
+              content,
+              commenter_username: 'TestUser',
+              created_at: new Date().toISOString(),
+            },
+            { status: 201 },
+          );
         }),
         // Override GET comments to check for refresh
         http.get('/api/tasks/1/comments', () => {
-          if (commentPostCalled) { // After POST, return new list
+          if (commentPostCalled) {
+            // After POST, return new list
             return HttpResponse.json([
-              { id: 1, content: 'Comment 1', commenter_username: 'UserA', created_at: new Date().toISOString() },
-              { id: 3, content: 'Newly added comment', commenter_username: 'TestUser', created_at: new Date().toISOString() },
+              {
+                id: 1,
+                content: 'Comment 1',
+                commenter_username: 'UserA',
+                created_at: new Date().toISOString(),
+              },
+              {
+                id: 3,
+                content: 'Newly added comment',
+                commenter_username: 'TestUser',
+                created_at: new Date().toISOString(),
+              },
             ]);
           }
-          return HttpResponse.json([{ id: 1, content: 'Comment 1', commenter_username: 'UserA', created_at: new Date().toISOString() }]);
+          return HttpResponse.json([
+            {
+              id: 1,
+              content: 'Comment 1',
+              commenter_username: 'UserA',
+              created_at: new Date().toISOString(),
+            },
+          ]);
         }),
         // Override GET activities to check for refresh
         http.get('/api/tasks/1/activities', () => {
           if (commentPostCalled) activityFetchAfterComment = true;
-          return HttpResponse.json([{ id: 1, description: 'Activity 1', created_at: new Date().toISOString() }]);
-        })
+          return HttpResponse.json([
+            {
+              id: 1,
+              description: 'Activity 1',
+              created_at: new Date().toISOString(),
+            },
+          ]);
+        }),
       );
 
       renderTaskModal({ task: mockTask, onTaskUpdated: onTaskUpdatedMock });
       await userEvent.click(screen.getByRole('button', { name: 'Comments' }));
-      
+
       const commentTextarea = screen.getByPlaceholderText('Write a comment...');
       await userEvent.type(commentTextarea, 'Newly added comment');
-      await userEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Add Comment' }),
+      );
 
       await waitFor(() => expect(commentPostCalled).toBe(true));
-      expect(await screen.findByText('Newly added comment')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Newly added comment'),
+      ).toBeInTheDocument();
       expect(onTaskUpdatedMock).toHaveBeenCalled();
       await waitFor(() => expect(activityFetchAfterComment).toBe(true));
     });

@@ -14,9 +14,23 @@ const Layout = () => {
 
   return (
     <>
-      <header style={{ background: '#f0f0f0', padding: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header
+        style={{
+          background: '#f0f0f0',
+          padding: '1rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <nav>
-          <Link to="/" style={{ marginRight: '1rem', fontWeight: 'bold', color: '#333' }}>Kanban App</Link>
+          <Link
+            to="/"
+            style={{ marginRight: '1rem', fontWeight: 'bold', color: '#333' }}
+          >
+            Kanban App
+          </Link>
           {isAuthenticated && (
             <>
               {/* Add links to protected areas like Projects, Dashboard etc. here */}
@@ -31,16 +45,29 @@ const Layout = () => {
             </Button>
           ) : (
             <>
-              <Link to="/login" style={{ marginRight: '1rem' }}>Login</Link>
+              <Link to="/login" style={{ marginRight: '1rem' }}>
+                Login
+              </Link>
               <Link to="/register">Register</Link>
             </>
           )}
         </nav>
       </header>
-      <main style={{ padding: '1rem', flexGrow: 1 }}> {/* Added flexGrow to push footer down */}
+      <main style={{ padding: '1rem', flexGrow: 1 }}>
+        {' '}
+        {/* Added flexGrow to push footer down */}
         <Outlet /> {/* Child routes will render here */}
       </main>
-      <footer style={{ background: '#f0f0f0', padding: '1rem', marginTop: 'auto', textAlign: 'center' }}> {/* Changed marginTop to auto */}
+      <footer
+        style={{
+          background: '#f0f0f0',
+          padding: '1rem',
+          marginTop: 'auto',
+          textAlign: 'center',
+        }}
+      >
+        {' '}
+        {/* Changed marginTop to auto */}
         <p>&copy; 2024 Kanban App</p>
       </footer>
     </>

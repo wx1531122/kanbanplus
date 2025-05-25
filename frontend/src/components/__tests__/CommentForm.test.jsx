@@ -6,11 +6,15 @@ import CommentForm from '../CommentForm';
 
 describe('CommentForm', () => {
   const mockTaskId = 123;
-  
+
   it('renders textarea and submit button', () => {
     render(<CommentForm taskId={mockTaskId} onCommentAdded={vi.fn()} />);
-    expect(screen.getByPlaceholderText('Write a comment...')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Add Comment' })).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Write a comment...'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add Comment' }),
+    ).toBeInTheDocument();
   });
 
   it('allows typing in the textarea', async () => {
@@ -36,8 +40,10 @@ describe('CommentForm', () => {
 
   it('calls onCommentAdded with task ID and content on submit and clears textarea', async () => {
     const mockOnCommentAdded = vi.fn(() => Promise.resolve()); // Mock returns a resolved promise
-    render(<CommentForm taskId={mockTaskId} onCommentAdded={mockOnCommentAdded} />);
-    
+    render(
+      <CommentForm taskId={mockTaskId} onCommentAdded={mockOnCommentAdded} />,
+    );
+
     const textarea = screen.getByPlaceholderText('Write a comment...');
     const submitButton = screen.getByRole('button', { name: 'Add Comment' });
     const commentText = 'A new insightful comment';
@@ -59,17 +65,23 @@ describe('CommentForm', () => {
     const submitButton = screen.getByRole('button', { name: 'Add Comment' });
     // Intentionally not typing anything or typing whitespace
     await userEvent.click(submitButton); // Should not submit due to disabled state, but let's ensure error if forced
-    
+
     // To test the internal validation message when content is empty
     fireEvent.submit(screen.getByRole('form')); // Directly trigger form submit for this check
-    
-    expect(screen.getByText('Comment content cannot be empty.')).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Comment content cannot be empty.'),
+    ).toBeInTheDocument();
   });
 
   it('displays error message if onCommentAdded throws error', async () => {
     const errorMessage = 'Network Error';
-    const mockOnCommentAdded = vi.fn(() => Promise.reject(new Error(errorMessage)));
-    render(<CommentForm taskId={mockTaskId} onCommentAdded={mockOnCommentAdded} />);
+    const mockOnCommentAdded = vi.fn(() =>
+      Promise.reject(new Error(errorMessage)),
+    );
+    render(
+      <CommentForm taskId={mockTaskId} onCommentAdded={mockOnCommentAdded} />,
+    );
 
     const textarea = screen.getByPlaceholderText('Write a comment...');
     const submitButton = screen.getByRole('button', { name: 'Add Comment' });
@@ -85,25 +97,33 @@ describe('CommentForm', () => {
   it('shows submitting state on button when submitting', async () => {
     // A promise that doesn't resolve immediately to check "Submitting..." state
     let resolveSubmission;
-    const longSubmissionPromise = new Promise(resolve => { resolveSubmission = resolve; });
+    const longSubmissionPromise = new Promise((resolve) => {
+      resolveSubmission = resolve;
+    });
     const mockOnCommentAdded = vi.fn(() => longSubmissionPromise);
 
-    render(<CommentForm taskId={mockTaskId} onCommentAdded={mockOnCommentAdded} />);
-    
+    render(
+      <CommentForm taskId={mockTaskId} onCommentAdded={mockOnCommentAdded} />,
+    );
+
     const textarea = screen.getByPlaceholderText('Write a comment...');
     const submitButton = screen.getByRole('button', { name: 'Add Comment' });
 
     await userEvent.type(textarea, 'Submitting test');
     await userEvent.click(submitButton);
 
-    expect(screen.getByRole('button', { name: 'Submitting...' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Submitting...' }),
+    ).toBeInTheDocument();
     expect(submitButton).toBeDisabled(); // Also check disabled state
     expect(textarea).toBeDisabled();
 
     // Resolve the promise to finish the test
-    resolveSubmission(); 
+    resolveSubmission();
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Add Comment' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Add Comment' }),
+      ).toBeInTheDocument();
     });
   });
 });

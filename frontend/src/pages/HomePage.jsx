@@ -11,7 +11,6 @@ const HomePage = () => {
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDescription, setNewProjectDescription] = useState('');
 
-
   const fetchProjects = async () => {
     setLoading(true);
     try {
@@ -33,26 +32,27 @@ const HomePage = () => {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     if (!newProjectName.trim()) {
-        alert("Project name cannot be empty.");
-        return;
+      alert('Project name cannot be empty.');
+      return;
     }
     try {
-        await apiClient.post('/projects', { 
-            name: newProjectName, 
-            description: newProjectDescription 
-        });
-        // Add new project to the list locally or re-fetch
-        // setProjects(prevProjects => [...prevProjects, response.data]); 
-        fetchProjects(); // Re-fetch to get the latest list including the new one
-        setIsCreateModalOpen(false);
-        setNewProjectName('');
-        setNewProjectDescription('');
+      await apiClient.post('/projects', {
+        name: newProjectName,
+        description: newProjectDescription,
+      });
+      // Add new project to the list locally or re-fetch
+      // setProjects(prevProjects => [...prevProjects, response.data]);
+      fetchProjects(); // Re-fetch to get the latest list including the new one
+      setIsCreateModalOpen(false);
+      setNewProjectName('');
+      setNewProjectDescription('');
     } catch (err) {
-        console.error("Failed to create project:", err);
-        alert(`Error: ${err.response?.data?.message || 'Could not create project.'}`);
+      console.error('Failed to create project:', err);
+      alert(
+        `Error: ${err.response?.data?.message || 'Could not create project.'}`,
+      );
     }
   };
-
 
   if (loading) return <p className="loading-message">Loading projects...</p>;
   if (error) return <p className="error-message">{error}</p>;
@@ -61,7 +61,10 @@ const HomePage = () => {
     <div className="home-page-container">
       <div className="home-page-header">
         <h2>Your Projects</h2>
-        <button onClick={() => setIsCreateModalOpen(true)} className="create-project-button">
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="create-project-button"
+        >
           + Create New Project
         </button>
       </div>
@@ -70,11 +73,13 @@ const HomePage = () => {
         <p>No projects found. Get started by creating one!</p>
       ) : (
         <ul className="project-list">
-          {projects.map(project => (
+          {projects.map((project) => (
             <li key={project.id} className="project-list-item">
               <Link to={`/project/${project.id}`} className="project-link">
                 <h3 className="project-name">{project.name}</h3>
-                <p className="project-description">{project.description || 'No description'}</p>
+                <p className="project-description">
+                  {project.description || 'No description'}
+                </p>
                 <span className="project-created-at">
                   Created: {new Date(project.created_at).toLocaleDateString()}
                 </span>
@@ -85,8 +90,10 @@ const HomePage = () => {
       )}
 
       {isCreateModalOpen && (
-        <div className="modal-overlay"> {/* Reusing modal styles concept from TaskModal */}
-          <div className="modal-content" style={{maxWidth: '400px'}}>
+        <div className="modal-overlay">
+          {' '}
+          {/* Reusing modal styles concept from TaskModal */}
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
             <h3>Create New Project</h3>
             <form onSubmit={handleCreateProject}>
               <div className="form-group">
@@ -100,7 +107,9 @@ const HomePage = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="project-description">Description (Optional):</label>
+                <label htmlFor="project-description">
+                  Description (Optional):
+                </label>
                 <textarea
                   id="project-description"
                   value={newProjectDescription}
@@ -109,7 +118,11 @@ const HomePage = () => {
                 />
               </div>
               <div className="modal-actions">
-                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="button-cancel">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="button-cancel"
+                >
                   Cancel
                 </button>
                 <button type="submit" className="button-save">

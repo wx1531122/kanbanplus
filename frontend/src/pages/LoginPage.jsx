@@ -28,12 +28,13 @@ const LoginPage = () => {
 
       const { access_token } = response.data;
       localStorage.setItem('accessToken', access_token); // Store token
-      
+
       // Here, you would typically update the AuthContext
       // For now, directly navigating.
       // if (contextLogin) contextLogin(access_token); // Call context login function
 
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`; // Set for current session
+      apiClient.defaults.headers.common['Authorization'] =
+        `Bearer ${access_token}`; // Set for current session
 
       navigate('/'); // Redirect to home/dashboard
     } catch (err) {
@@ -46,7 +47,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #eee', borderRadius: '8px' }}>
+    <div
+      style={{
+        maxWidth: '400px',
+        margin: '2rem auto',
+        padding: '2rem',
+        border: '1px solid #eee',
+        borderRadius: '8px',
+      }}
+    >
       <h2>Login</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
