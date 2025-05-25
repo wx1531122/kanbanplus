@@ -42,7 +42,7 @@ const TaskCard = ({ task, onEditTask }) => {
     try {
       const date = new Date(isoString);
       return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch (e) {
+    } catch (_e) {
       return 'Invalid date';
     }
   };

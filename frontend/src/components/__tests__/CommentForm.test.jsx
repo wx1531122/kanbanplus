@@ -61,7 +61,6 @@ describe('CommentForm', () => {
     await userEvent.click(submitButton); // Should not submit due to disabled state, but let's ensure error if forced
     
     // To test the internal validation message when content is empty
-    const textarea = screen.getByPlaceholderText('Write a comment...');
     fireEvent.submit(screen.getByRole('form')); // Directly trigger form submit for this check
     
     expect(screen.getByText('Comment content cannot be empty.')).toBeInTheDocument();
