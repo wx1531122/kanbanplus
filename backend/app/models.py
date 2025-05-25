@@ -9,6 +9,8 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     projects = db.relationship('Project', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='commenter', lazy='dynamic')
+    activity_logs = db.relationship('ActivityLog', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         from werkzeug.security import generate_password_hash
@@ -38,6 +40,7 @@ class Project(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     stages = db.relationship('Stage', backref='project', lazy='dynamic', cascade='all, delete-orphan')
+    activity_logs = db.relationship('ActivityLog', backref='project', lazy='dynamic', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Project {self.name}>'
@@ -91,11 +94,14 @@ class Task(db.Model):
     due_date = db.Column(db.DateTime, nullable=True)
     priority = db.Column(db.String(50), nullable=True)
     subtasks = db.relationship('SubTask', backref='parent_task', lazy='dynamic', cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='task', lazy='dynamic', cascade='all, delete-orphan')
+    activity_logs = db.relationship('ActivityLog', backref='task', lazy='dynamic', cascade='all, delete-orphan')
+    tags = db.relationship('Tag', secondary='task_tag', lazy='subquery', backref=db.backref('tasks', lazy='dynamic'))
 
     def __repr__(self):
         return f'<Task {self.id}>'
 
-    def to_dict(self, include_subtasks=False):
+    def to_dict(self, include_subtasks=False, include_tags=True):
         data = {
             'id': self.id,
             'content': self.content,
@@ -105,7 +111,75 @@ class Task(db.Model):
             'due_date': self.due_date.isoformat() if self.due_date else None,
             'priority': self.priority,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'tags': [tag.to_dict() for tag in self.tags] if include_tags else []
+        }
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f'<Tag {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+
+# Association table for Task and Tag many-to-many relationship
+task_tag = db.Table('task_tag',
+    db.Column('task_id', db.Integer, db.ForeignKey('task.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
+)
+
+
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    action_type = db.Column(db.String(100), nullable=False)  # e.g., "TASK_CREATED", "COMMENT_ADDED"
+    description = db.Column(db.Text, nullable=False)  # e.g., "User 'X' created task 'Y'"
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<ActivityLog {self.action_type} by User {self.user_id}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'action_type': self.action_type,
+            'description': self.description,
+            'user_id': self.user_id,
+            'user_username': self.user.username if self.user else None, # Include username
+            'project_id': self.project_id,
+            'task_id': self.task_id,
+            'created_at': self.created_at.isoformat()
+        }
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Comment {self.id}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'content': self.content,
+            'task_id': self.task_id,
+            'user_id': self.user_id,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
         }
         if include_subtasks:
             data['subtasks'] = [subtask.to_dict() for subtask in self.subtasks.order_by(SubTask.order).all()]

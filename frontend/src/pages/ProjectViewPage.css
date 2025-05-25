@@ -1,0 +1,82 @@
+.project-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #dfe1e6;
+  margin-bottom: 10px; /* Reduced margin as tabs follow */
+}
+
+.project-header h2 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 1.8em;
+  color: #172b4d;
+}
+
+.project-header p {
+  margin-bottom: 0;
+  font-size: 1em;
+  color: #5e6c84;
+}
+
+.project-view-tabs {
+  display: flex;
+  border-bottom: 1px solid #dfe1e6;
+  margin-bottom: 20px;
+  padding: 0 20px; /* Align with project-header padding */
+}
+
+.project-view-tabs button {
+  padding: 10px 15px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1em;
+  color: #5e6c84; /* Default tab color */
+  border-bottom: 3px solid transparent;
+  margin-right: 15px;
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+
+.project-view-tabs button:hover {
+  color: #0052cc; /* Atlassian blue for hover */
+}
+
+.project-view-tabs button.active {
+  color: #0052cc;
+  border-bottom-color: #0052cc;
+  font-weight: 600; /* Bolder for active tab */
+}
+
+
+.stages-container {
+  display: flex;
+  flex-direction: row; 
+  overflow-x: auto; 
+  padding: 0 10px 20px 10px; 
+  align-items: flex-start; 
+  min-height: calc(100vh - 250px); /* Adjusted for header and tabs */
+}
+
+.project-activity-section {
+  padding: 0 20px 20px 20px; /* Consistent padding */
+}
+
+.project-activity-section h3 {
+  font-size: 1.5em;
+  color: #172b4d;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dfe1e6;
+}
+
+/* Styling for loading/error messages on this page */
+.project-view-loading,
+.project-view-error,
+.project-view-message { /* For "Project not found" etc. */
+  padding: 20px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.project-view-error {
+  color: #de350b; 
+}

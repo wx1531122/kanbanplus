@@ -1,0 +1,52 @@
+.comment-form {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0; /* Separator for the form */
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 0.95em;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  resize: vertical; /* Allow user to resize vertically */
+}
+
+.comment-textarea:focus {
+  border-color: #80bdff; /* Highlight focus like Bootstrap */
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.comment-submit-button {
+  background-color: #28a745; /* Green for add/submit actions */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: bold;
+  float: right; /* Align button to the right */
+  transition: background-color 0.2s ease;
+}
+
+.comment-submit-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.comment-submit-button:disabled {
+  background-color: #6c757d; /* Grey when disabled */
+  cursor: not-allowed;
+}
+
+.comment-form-error {
+  color: #dc3545; /* Red for error messages */
+  font-size: 0.85em;
+  margin-bottom: 10px;
+}
