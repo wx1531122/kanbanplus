@@ -138,9 +138,13 @@ def test_protected_route_with_invalid_token(test_client):
         response.status_code == 422
     )  # Expecting JWT error (invalid token format or content)
     assert "msg" in response.json  # Flask-JWT-Extended default error key
+    expected_msgs = [
+        "Invalid header padding",
+        "Not enough segments",
+        "Invalid token format",
+    ]
     assert (
-        response.json["msg"]
-        in ["Invalid header padding", "Not enough segments", "Invalid token format"]
+        response.json["msg"] in expected_msgs
         or "Invalid" in response.json["msg"]
     )
     # The exact message can vary based on the nature of the invalid token.

@@ -272,8 +272,11 @@ def test_remove_tag_unauthorized_or_forbidden(
     email_other = "other_tags_user@example.com"
     test_client.post(
         "/api/auth/register",
-        json={"username": "other_tags",
-            "email": email_other, "password": "opass"},
+        json={
+            "username": "other_tags",
+            "email": email_other,
+            "password": "opass"
+        },
     )
     login_res_other = test_client.post(
         "/api/auth/login", json={"email": email_other, "password": "opass"}
@@ -381,11 +384,11 @@ def test_add_tag_by_mixed_case_name(
     # Verify no new tag was created
     tags_list_res = test_client.get("/api/tags", headers=headers)
     tags_in_db = tags_list_res.json
-    assert (
-        sum(1 for t in tags_in_db if t["name"].lower(
-        ) == original_tag_name.lower())
-        == 1
+    count = sum(
+        1 for t in tags_in_db
+        if t["name"].lower() == original_tag_name.lower()
     )
+    assert count == 1
 
     # 3. Add another tag by name, this time a completely new one with mixed case
     new_mixed_name = "AnotherNewMix"

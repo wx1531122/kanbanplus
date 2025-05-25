@@ -128,7 +128,10 @@ def another_user_auth_headers(test_client, db_session):  # Added db_session
     )
     assert (
         login_response.status_code == 200
-    ), f"Login failed for another_user: {login_response.json}"
+    ), (
+        f"Login failed for another_user: "
+        f"{login_response.json}"
+    )
     access_token = login_response.json["access_token"]
     return {"Authorization": f"Bearer {access_token}"}
 
