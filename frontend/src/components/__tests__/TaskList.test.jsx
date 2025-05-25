@@ -16,7 +16,13 @@ vi.mock('../TaskCard', () => ({
 describe('TaskList', () => {
   const mockTasks = [
     { id: 1, content: 'Task One', due_date: null, priority: 'Low', tags: [] },
-    { id: 2, content: 'Task Two', due_date: '2023-01-01T00:00:00Z', priority: 'High', tags: [{id: 1, name: "Test"}] },
+    {
+      id: 2,
+      content: 'Task Two',
+      due_date: '2023-01-01T00:00:00Z',
+      priority: 'High',
+      tags: [{ id: 1, name: 'Test' }],
+    },
   ];
   const mockOnEditTask = vi.fn();
 
@@ -27,7 +33,7 @@ describe('TaskList', () => {
 
   it('renders a list of TaskCard components when tasks are provided', () => {
     render(<TaskList tasks={mockTasks} onEditTask={mockOnEditTask} />);
-    
+
     const taskCards = screen.getAllByTestId('task-card');
     expect(taskCards).toHaveLength(mockTasks.length);
     expect(taskCards[0]).toHaveTextContent('Task One');
@@ -36,11 +42,11 @@ describe('TaskList', () => {
 
   it('passes correct props to TaskCard components', () => {
     render(<TaskList tasks={mockTasks} onEditTask={mockOnEditTask} />);
-    
+
     const taskCards = screen.getAllByTestId('task-card');
     // Simulate a click on the first mocked TaskCard to check if onEditTask is called correctly
     // This relies on the mock implementation detail of TaskCard having an onClick.
-    taskCards[0].click(); 
+    taskCards[0].click();
     expect(mockOnEditTask).toHaveBeenCalledWith(mockTasks[0]);
 
     taskCards[1].click();

@@ -6,18 +6,21 @@ const ActivityLogItem = ({ activity }) => {
     if (!isoString) return 'Date not available';
     try {
       const date = new Date(isoString);
-      return date.toLocaleString(undefined, { 
-        year: 'numeric', month: 'short', day: 'numeric', 
-        hour: '2-digit', minute: '2-digit' 
+      return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
       });
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (e) {
       return 'Invalid date';
     }
   };
 
   // Backend ActivityLog.to_dict() includes:
-  // 'id', 'action_type', 'description', 'user_id', 
+  // 'id', 'action_type', 'description', 'user_id',
   // 'user_username', 'project_id', 'task_id', 'created_at'
 
   return (
@@ -27,7 +30,9 @@ const ActivityLogItem = ({ activity }) => {
         {/* user_username is part of the description as per backend, 
             but also available directly if needed for different styling */}
         {/* <span className="activity-user">{activity.user_username}</span> */}
-        <span className="activity-timestamp">{formatDate(activity.created_at)}</span>
+        <span className="activity-timestamp">
+          {formatDate(activity.created_at)}
+        </span>
       </div>
     </div>
   );

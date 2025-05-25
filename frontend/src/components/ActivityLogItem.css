@@ -21,7 +21,8 @@
   align-items: center;
 }
 
-.activity-user { /* If we decide to display user separately */
+.activity-user {
+  /* If we decide to display user separately */
   font-weight: 500;
   color: #555;
   margin-right: 8px;

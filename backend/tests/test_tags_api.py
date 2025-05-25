@@ -46,8 +46,7 @@ def test_create_and_list_tags(test_client, auth_headers, db_session):
         len(tags) >= 2
     )  # Could be more if other tests created tags and DB is not perfectly isolated by function
 
-    found_tag1 = any(t["name"] == tag_name1 and t["id"]
-                     == tag1_id for t in tags)
+    found_tag1 = any(t["name"] == tag_name1 and t["id"] == tag1_id for t in tags)
     found_tag2 = any(t["name"] == tag_name2 for t in tags)
     assert found_tag1
     assert found_tag2
@@ -112,8 +111,7 @@ def test_add_tag_to_task_by_id_and_name(
     task_data_2 = response_add_by_name.json
     assert len(task_data_2["tags"]) == 2
 
-    newly_added_tag = next(
-        t for t in task_data_2["tags"] if t["name"] == tag_name_new)
+    newly_added_tag = next(t for t in task_data_2["tags"] if t["name"] == tag_name_new)
     assert newly_added_tag is not None
 
     # Verify tag was created in DB
@@ -149,8 +147,7 @@ def test_add_tag_to_task_invalid_input(
     task_id = created_task_for_tags["task_id"]
 
     # No tag_id or tag_name
-    response = test_client.post(
-        f"/api/tasks/{task_id}/tags", headers=headers, json={})
+    response = test_client.post(f"/api/tasks/{task_id}/tags", headers=headers, json={})
     assert response.status_code == 400
     assert response.json["message"] == "Either tag_name or tag_id is required"
 
@@ -192,11 +189,9 @@ def test_remove_tag_from_task(
     # Add two tags first
     tag1_name = "TagToRemove1"
     tag2_name = "TagToKeep"
-    tag1_res = test_client.post(
-        "/api/tags", headers=headers, json={"name": tag1_name})
+    tag1_res = test_client.post("/api/tags", headers=headers, json={"name": tag1_name})
     tag1_id = tag1_res.json["id"]
-    tag2_res = test_client.post(
-        "/api/tags", headers=headers, json={"name": tag2_name})
+    tag2_res = test_client.post("/api/tags", headers=headers, json={"name": tag2_name})
     tag2_id = tag2_res.json["id"]
 
     test_client.post(
@@ -206,8 +201,7 @@ def test_remove_tag_from_task(
         f"/api/tasks/{task_id}/tags", headers=headers, json={"tag_id": tag2_id}
     )
 
-    task_res_before_delete = test_client.get(
-        f"/api/tasks/{task_id}", headers=headers)
+    task_res_before_delete = test_client.get(f"/api/tasks/{task_id}", headers=headers)
     assert len(task_res_before_delete.json["tags"]) == 2
 
     # Remove tag1
@@ -217,8 +211,7 @@ def test_remove_tag_from_task(
     assert response_delete.status_code == 204
 
     # Verify tag removed from task
-    task_res_after_delete = test_client.get(
-        f"/api/tasks/{task_id}", headers=headers)
+    task_res_after_delete = test_client.get(f"/api/tasks/{task_id}", headers=headers)
     assert len(task_res_after_delete.json["tags"]) == 1
     assert task_res_after_delete.json["tags"][0]["id"] == tag2_id
 
@@ -231,9 +224,7 @@ def test_remove_tag_from_task(
         and a["task_id"] == task_id
         and f"removed tag '{tag1_name}'" in a["description"]
         for a in project_activities
-    ), (
-        "TAG_REMOVED_FROM_TASK activity not found"
-    )
+    ), "TAG_REMOVED_FROM_TASK activity not found"
 
     # Attempt to remove a tag not on the task (or already removed)
     response_delete_again = test_client.delete(
@@ -264,19 +255,14 @@ def test_remove_tag_unauthorized_or_forbidden(
     )
 
     # No token
-    response_no_token = test_client.delete(
-        f"/api/tasks/{task_id}/tags/{tag_id}")
+    response_no_token = test_client.delete(f"/api/tasks/{task_id}/tags/{tag_id}")
     assert response_no_token.status_code == 401
 
     # Different user
     email_other = "other_tags_user@example.com"
     test_client.post(
         "/api/auth/register",
-        json={
-            "username": "other_tags",
-            "email": email_other,
-            "password": "opass"
-        },
+        json={"username": "other_tags", "email": email_other, "password": "opass"},
     )
     login_res_other = test_client.post(
         "/api/auth/login", json={"email": email_other, "password": "opass"}
@@ -301,16 +287,14 @@ def test_task_to_dict_includes_tags(
     # Add some tags
     tag_names = ["AlphaTag", "BetaTag"]
     for name in tag_names:
-        tag_res = test_client.post(
-            "/api/tags", headers=headers, json={"name": name})
+        tag_res = test_client.post("/api/tags", headers=headers, json={"name": name})
         tag_id = tag_res.json["id"]
         test_client.post(
             f"/api/tasks/{task_id}/tags", headers=headers, json={"tag_id": tag_id}
         )
 
     # Fetch the task directly
-    response_get_task = test_client.get(
-        f"/api/tasks/{task_id}", headers=headers)
+    response_get_task = test_client.get(f"/api/tasks/{task_id}", headers=headers)
     assert response_get_task.status_code == 200
     task_data = response_get_task.json
 
@@ -384,10 +368,7 @@ def test_add_tag_by_mixed_case_name(
     # Verify no new tag was created
     tags_list_res = test_client.get("/api/tags", headers=headers)
     tags_in_db = tags_list_res.json
-    count = sum(
-        1 for t in tags_in_db
-        if t["name"].lower() == original_tag_name.lower()
-    )
+    count = sum(1 for t in tags_in_db if t["name"].lower() == original_tag_name.lower())
     assert count == 1
 
     # 3. Add another tag by name, this time a completely new one with mixed case
@@ -405,7 +386,6 @@ def test_add_tag_by_mixed_case_name(
     assert added_tag_info is not None  # Tag was created with the provided casing
 
     # Verify it was created with the given casing
-    tag_db_check = db_session.query(Tag).filter_by(
-        id=added_tag_info["id"]).first()
+    tag_db_check = db_session.query(Tag).filter_by(id=added_tag_info["id"]).first()
     assert tag_db_check is not None
     assert tag_db_check.name == new_mixed_name

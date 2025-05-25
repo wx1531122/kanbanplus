@@ -8,8 +8,12 @@ import TaskList from '../TaskList';
 vi.mock('../TaskList', () => ({
   default: ({ tasks, onEditTask }) => (
     <div data-testid="task-list">
-      {tasks.map(task => (
-        <div key={task.id} data-testid="task-in-list" onClick={() => onEditTask(task)}>
+      {tasks.map((task) => (
+        <div
+          key={task.id}
+          data-testid="task-in-list"
+          onClick={() => onEditTask(task)}
+        >
           {task.content}
         </div>
       ))}
@@ -31,22 +35,24 @@ describe('StageColumn', () => {
 
   it('renders stage title correctly', () => {
     render(
-      <StageColumn 
-        stage={mockStage} 
-        onAddTask={mockOnAddTask} 
-        onEditTask={mockOnEditTask} 
-      />
+      <StageColumn
+        stage={mockStage}
+        onAddTask={mockOnAddTask}
+        onEditTask={mockOnEditTask}
+      />,
     );
-    expect(screen.getByRole('heading', { name: mockStage.name, level: 3 })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: mockStage.name, level: 3 }),
+    ).toBeInTheDocument();
   });
 
   it('renders TaskList with correct tasks', () => {
     render(
-      <StageColumn 
-        stage={mockStage} 
-        onAddTask={mockOnAddTask} 
-        onEditTask={mockOnEditTask} 
-      />
+      <StageColumn
+        stage={mockStage}
+        onAddTask={mockOnAddTask}
+        onEditTask={mockOnEditTask}
+      />,
     );
     expect(screen.getByTestId('task-list')).toBeInTheDocument();
     const tasksInList = screen.getAllByTestId('task-in-list');
@@ -54,7 +60,7 @@ describe('StageColumn', () => {
     expect(tasksInList[0]).toHaveTextContent('Task A');
     expect(tasksInList[1]).toHaveTextContent('Task B');
   });
-  
+
   it('renders TaskList with empty message if no tasks', () => {
     // To test this properly, the mock of TaskList needs to be more sophisticated
     // or we don't mock TaskList and let it render its own "no tasks" message.
@@ -63,12 +69,12 @@ describe('StageColumn', () => {
     // Let's assume TaskList's own tests cover the "no tasks" message.
     // Here we just check that an empty tasks array is passed.
     const stageWithNoTasks = { ...mockStage, tasks: [] };
-     render(
-      <StageColumn 
-        stage={stageWithNoTasks} 
-        onAddTask={mockOnAddTask} 
-        onEditTask={mockOnEditTask} 
-      />
+    render(
+      <StageColumn
+        stage={stageWithNoTasks}
+        onAddTask={mockOnAddTask}
+        onEditTask={mockOnEditTask}
+      />,
     );
     // Check that TaskList is rendered (our mock will render an empty div)
     expect(screen.getByTestId('task-list')).toBeInTheDocument();
@@ -76,14 +82,13 @@ describe('StageColumn', () => {
     expect(screen.queryAllByTestId('task-in-list')).toHaveLength(0);
   });
 
-
   it('calls onAddTask with stage ID when "Add Task" button is clicked', () => {
     render(
-      <StageColumn 
-        stage={mockStage} 
-        onAddTask={mockOnAddTask} 
-        onEditTask={mockOnEditTask} 
-      />
+      <StageColumn
+        stage={mockStage}
+        onAddTask={mockOnAddTask}
+        onEditTask={mockOnEditTask}
+      />,
     );
     const addTaskButton = screen.getByRole('button', { name: '+ Add Task' });
     fireEvent.click(addTaskButton);
@@ -93,11 +98,11 @@ describe('StageColumn', () => {
 
   it('passes onEditTask to TaskList (verified by mock interaction)', () => {
     render(
-      <StageColumn 
-        stage={mockStage} 
-        onAddTask={mockOnAddTask} 
-        onEditTask={mockOnEditTask} 
-      />
+      <StageColumn
+        stage={mockStage}
+        onAddTask={mockOnAddTask}
+        onEditTask={mockOnEditTask}
+      />,
     );
     // Simulate a click on a task within the mocked TaskList
     const tasksInList = screen.getAllByTestId('task-in-list');

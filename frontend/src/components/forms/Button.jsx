@@ -1,6 +1,13 @@
 import React from 'react';
 
-const Button = ({ children, onClick, type = 'button', disabled = false, variant = 'primary', ...props }) => {
+const Button = ({
+  children,
+  onClick,
+  type = 'button',
+  disabled = false,
+  variant = 'primary',
+  ...props
+}) => {
   // Basic styling, can be expanded with different variants (primary, secondary, etc.)
   const baseStyle = {
     padding: '0.75rem 1.5rem',
@@ -27,7 +34,7 @@ const Button = ({ children, onClick, type = 'button', disabled = false, variant 
     danger: {
       backgroundColor: '#dc3545',
       color: 'white',
-    }
+    },
     // Add more variants as needed
   };
 

@@ -33,7 +33,9 @@
   color: #5e6c84; /* Default tab color */
   border-bottom: 3px solid transparent;
   margin-right: 15px;
-  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-bottom-color 0.2s ease;
 }
 
 .project-view-tabs button:hover {
@@ -46,13 +48,12 @@
   font-weight: 600; /* Bolder for active tab */
 }
 
-
 .stages-container {
   display: flex;
-  flex-direction: row; 
-  overflow-x: auto; 
-  padding: 0 10px 20px 10px; 
-  align-items: flex-start; 
+  flex-direction: row;
+  overflow-x: auto;
+  padding: 0 10px 20px 10px;
+  align-items: flex-start;
   min-height: calc(100vh - 250px); /* Adjusted for header and tabs */
 }
 
@@ -71,12 +72,13 @@
 /* Styling for loading/error messages on this page */
 .project-view-loading,
 .project-view-error,
-.project-view-message { /* For "Project not found" etc. */
+.project-view-message {
+  /* For "Project not found" etc. */
   padding: 20px;
   text-align: center;
   font-size: 1.2em;
 }
 
 .project-view-error {
-  color: #de350b; 
+  color: #de350b;
 }

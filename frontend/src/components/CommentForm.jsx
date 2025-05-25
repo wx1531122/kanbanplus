@@ -18,11 +18,11 @@ const CommentForm = ({ taskId, onCommentAdded }) => {
 
     try {
       // onCommentAdded is expected to be an async function that handles the API call
-      await onCommentAdded(taskId, content); 
+      await onCommentAdded(taskId, content);
       setContent(''); // Clear input after successful submission
     } catch (err) {
       setError(err.message || 'Failed to add comment. Please try again.');
-      console.error("Failed to add comment:", err);
+      console.error('Failed to add comment:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -39,8 +39,8 @@ const CommentForm = ({ taskId, onCommentAdded }) => {
         rows="3"
         disabled={isSubmitting}
       />
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         className="comment-submit-button"
         disabled={isSubmitting || !content.trim()}
       >

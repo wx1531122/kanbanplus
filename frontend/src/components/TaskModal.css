@@ -17,7 +17,7 @@
   background: white;
   padding: 25px;
   border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 600px; /* Slightly wider to accommodate comments */
   display: flex;
@@ -44,20 +44,20 @@
   color: #555;
 }
 
-.form-group input[type="text"],
-.form-group input[type="date"],
+.form-group input[type='text'],
+.form-group input[type='date'],
 .form-group textarea,
 .form-group select {
-  width: 100%; 
+  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box; 
+  box-sizing: border-box;
   font-size: 1em;
 }
 
 .form-group textarea {
-  resize: vertical; 
+  resize: vertical;
   min-height: 80px;
 }
 
@@ -76,11 +76,13 @@
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .modal-actions .button-cancel {
-  background-color: #f0f0f0; 
+  background-color: #f0f0f0;
   color: #333;
   margin-right: 10px;
 }
@@ -90,13 +92,13 @@
 }
 
 .modal-actions .button-save {
-  background-color: #007bff; 
+  background-color: #007bff;
   color: white;
 }
 
 .modal-actions .button-save:hover {
-  background-color: #0056b3; 
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  background-color: #0056b3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Modal Tabs Styling */
@@ -115,7 +117,9 @@
   color: #495057;
   border-bottom: 3px solid transparent; /* For active indicator */
   margin-right: 10px;
-  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-bottom-color 0.2s ease;
 }
 
 .modal-tabs button:hover {
@@ -132,33 +136,36 @@
 .comments-section,
 .activity-log-section {
   margin-top: 10px; /* Reduced margin as tabs provide separation */
-  padding-top: 10px; 
+  padding-top: 10px;
   /* border-top: 1px solid #dee2e6; /* No longer needed if tabs have bottom border */
 }
 
 .comments-section h4,
 .activity-log-section h4 {
   font-size: 1.2em;
-  color: #343a40; 
+  color: #343a40;
   margin-bottom: 15px;
 }
 
 .comments-list,
-.activity-log-section .activity-log-list { /* Target ActivityLogList within this section */
+.activity-log-section .activity-log-list {
+  /* Target ActivityLogList within this section */
   max-height: 250px; /* Consistent max height for scrollable content */
   overflow-y: auto;
-  padding-right: 5px; 
-  margin-bottom: 15px; 
+  padding-right: 5px;
+  margin-bottom: 15px;
 }
 
 .comments-section .error-message,
-.activity-log-section .error-message { /* Shared error message styling */
+.activity-log-section .error-message {
+  /* Shared error message styling */
   color: #dc3545;
   font-size: 0.9em;
 }
 
 .comments-section p:first-of-type, /* For "Loading..." or "No items..." */
-.activity-log-section .activity-list-message { /* Target specific message class from ActivityLogList */
+.activity-log-section .activity-list-message {
+  /* Target specific message class from ActivityLogList */
   color: #6c757d;
   font-style: italic;
 }

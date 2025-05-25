@@ -1,9 +1,25 @@
 import React from 'react';
 
-const Input = ({ label, type = 'text', name, value, onChange, placeholder, required = false, ...props }) => {
+const Input = ({
+  label,
+  type = 'text',
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  ...props
+}) => {
   return (
     <div style={{ marginBottom: '1rem' }}>
-      {label && <label htmlFor={name} style={{ display: 'block', marginBottom: '0.25rem' }}>{label}</label>}
+      {label && (
+        <label
+          htmlFor={name}
+          style={{ display: 'block', marginBottom: '0.25rem' }}
+        >
+          {label}
+        </label>
+      )}
       <input
         type={type}
         id={name}

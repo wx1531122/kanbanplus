@@ -27,20 +27,30 @@ describe('CommentItem', () => {
 
   it('renders commenter username when available', () => {
     render(<CommentItem comment={mockComment} />);
-    expect(screen.getByText(mockComment.commenter_username)).toBeInTheDocument();
+    expect(
+      screen.getByText(mockComment.commenter_username),
+    ).toBeInTheDocument();
   });
 
   it('renders User ID when commenter_username is not available', () => {
     render(<CommentItem comment={mockCommentNoUsername} />);
-    expect(screen.getByText(`User ID: ${mockCommentNoUsername.user_id}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`User ID: ${mockCommentNoUsername.user_id}`),
+    ).toBeInTheDocument();
   });
 
   it('renders formatted timestamp correctly', () => {
     render(<CommentItem comment={mockComment} />);
-    const expectedDate = new Date(mockComment.created_at).toLocaleString(undefined, { 
-      year: 'numeric', month: 'short', day: 'numeric', 
-      hour: '2-digit', minute: '2-digit' 
-    });
+    const expectedDate = new Date(mockComment.created_at).toLocaleString(
+      undefined,
+      {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+    );
     expect(screen.getByText(expectedDate)).toBeInTheDocument();
   });
 

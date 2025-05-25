@@ -23,10 +23,16 @@ describe('ActivityLogItem', () => {
     // For simplicity, we'll check for a part of it or a general pattern.
     // The toLocaleString output depends on the node's ICU data and system locale.
     // Let's check for the presence of the date and a time-like pattern.
-    const expectedDate = new Date(mockActivity.created_at).toLocaleDateString(undefined, { 
-      year: 'numeric', month: 'short', day: 'numeric', 
-      hour: '2-digit', minute: '2-digit' 
-    });
+    const expectedDate = new Date(mockActivity.created_at).toLocaleDateString(
+      undefined,
+      {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+    );
     expect(screen.getByText(expectedDate)).toBeInTheDocument();
   });
 
@@ -35,9 +41,12 @@ describe('ActivityLogItem', () => {
     render(<ActivityLogItem activity={activityWithoutDate} />);
     expect(screen.getByText('Date not available')).toBeInTheDocument();
   });
-  
+
   it('handles invalid timestamp gracefully', () => {
-    const activityWithInvalidDate = { ...mockActivity, created_at: 'invalid-date-string' };
+    const activityWithInvalidDate = {
+      ...mockActivity,
+      created_at: 'invalid-date-string',
+    };
     render(<ActivityLogItem activity={activityWithInvalidDate} />);
     expect(screen.getByText('Invalid date')).toBeInTheDocument();
   });

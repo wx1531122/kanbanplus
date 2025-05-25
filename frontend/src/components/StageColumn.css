@@ -7,7 +7,7 @@
   padding: 8px;
   width: 280px; /* Fixed width for each column */
   min-height: 300px; /* Minimum height */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   flex-shrink: 0; /* Prevent columns from shrinking */
 }
 

@@ -5,7 +5,9 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('accessToken'));
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('accessToken'));
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem('accessToken'),
+  );
   // const [user, setUser] = useState(null); // Placeholder for user data
 
   useEffect(() => {
@@ -13,7 +15,8 @@ export const AuthProvider = ({ children }) => {
     if (storedToken) {
       setToken(storedToken);
       setIsAuthenticated(true);
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+      apiClient.defaults.headers.common['Authorization'] =
+        `Bearer ${storedToken}`;
       // Optionally decode token or fetch user data here
       // e.g., const decoded = jwtDecode(storedToken); setUser(decoded);
     } else {
@@ -47,19 +50,20 @@ export const AuthProvider = ({ children }) => {
     // eslint-disable-next-line no-unused-vars
     email,
     // eslint-disable-next-line no-unused-vars
-    password
+    password,
   ) => {
     // This function might not be strictly necessary in AuthContext
     // if RegisterPage handles the API call and redirects.
     // However, it could be here if context needs to manage some part of registration flow.
     // For now, let it be a conceptual placeholder.
-    console.log("Register function in AuthContext called (conceptual)");
+    console.log('Register function in AuthContext called (conceptual)');
     // Example: return apiClient.post('/auth/register', { username, email, password });
   };
 
-
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, login, logout, register /*, user */ }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, token, login, logout, register /*, user */ }}
+    >
       {children}
     </AuthContext.Provider>
   );

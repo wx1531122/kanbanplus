@@ -21,10 +21,12 @@ vi.mock('react-router-dom', async () => {
 const renderRegisterPage = () => {
   return render(
     <MemoryRouter>
-      <AuthProvider> {/* AuthProvider might not be strictly necessary if RegisterPage doesn't use context directly, but good for consistency */}
+      <AuthProvider>
+        {' '}
+        {/* AuthProvider might not be strictly necessary if RegisterPage doesn't use context directly, but good for consistency */}
         <RegisterPage />
       </AuthProvider>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 };
 
@@ -35,18 +37,25 @@ describe('RegisterPage', () => {
     // Default successful registration handler
     server.use(
       http.post('/api/auth/register', () => {
-        return HttpResponse.json({ message: 'User registered successfully' }, { status: 201 });
-      })
+        return HttpResponse.json(
+          { message: 'User registered successfully' },
+          { status: 201 },
+        );
+      }),
     );
   });
 
   it('renders registration form with username, email, password fields and a submit button', () => {
     renderRegisterPage();
-    expect(screen.getByRole('heading', { name: 'Register' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Register' }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('Username:')).toBeInTheDocument();
     expect(screen.getByLabelText('Email:')).toBeInTheDocument();
     expect(screen.getByLabelText('Password:')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Register' }),
+    ).toBeInTheDocument();
   });
 
   it('allows user to type into form fields', async () => {
@@ -62,51 +71,63 @@ describe('RegisterPage', () => {
 
   it('submits form data and navigates to login on successful registration', async () => {
     renderRegisterPage();
-    
+
     await userEvent.type(screen.getByLabelText('Username:'), 'newuser');
     await userEvent.type(screen.getByLabelText('Email:'), 'new@example.com');
     await userEvent.type(screen.getByLabelText('Password:'), 'securepassword');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/login', { state: { message: 'Registration successful! Please log in.' } });
+      expect(mockNavigate).toHaveBeenCalledWith('/login', {
+        state: { message: 'Registration successful! Please log in.' },
+      });
     });
   });
 
   it('displays error message on failed registration (e.g., email exists)', async () => {
     server.use(
       http.post('/api/auth/register', () => {
-        return HttpResponse.json({ message: 'Email already exists' }, { status: 409 });
-      })
+        return HttpResponse.json(
+          { message: 'Email already exists' },
+          { status: 409 },
+        );
+      }),
     );
     renderRegisterPage();
 
-    await userEvent.type(screen.getByLabelText('Email:'), 'existing@example.com');
+    await userEvent.type(
+      screen.getByLabelText('Email:'),
+      'existing@example.com',
+    );
     await userEvent.type(screen.getByLabelText('Password:'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
-    expect(await screen.findByText('Registration failed: Email already exists')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Registration failed: Email already exists'),
+    ).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('displays error message if API returns non-JSON error or network error', async () => {
     server.use(
       http.post('/api/auth/register', () => {
-        return new HttpResponse("Server Error", { status: 500 });
-      })
+        return new HttpResponse('Server Error', { status: 500 });
+      }),
     );
     renderRegisterPage();
 
     await userEvent.type(screen.getByLabelText('Email:'), 'test@example.com');
     await userEvent.type(screen.getByLabelText('Password:'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
-    
-    expect(await screen.findByText(/Registration failed:/)).toBeInTheDocument(); 
+
+    expect(await screen.findByText(/Registration failed:/)).toBeInTheDocument();
   });
 
   it('shows a link to the login page', () => {
     renderRegisterPage();
-    const loginLink = screen.getByRole('link', { name: 'Already have an account? Login' });
+    const loginLink = screen.getByRole('link', {
+      name: 'Already have an account? Login',
+    });
     expect(loginLink).toBeInTheDocument();
     expect(loginLink).toHaveAttribute('href', '/login');
   });

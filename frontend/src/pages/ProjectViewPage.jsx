@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import apiClient from '../services/api';
-import StageColumn from '../components/StageColumn'; 
+import StageColumn from '../components/StageColumn';
 import TaskModal from '../components/TaskModal';
 import ActivityLogList from '../components/ActivityLogList'; // Import ActivityLogList
 import './ProjectViewPage.css';
@@ -18,11 +18,12 @@ const ProjectViewPage = () => {
 
   // Tab state for ProjectViewPage content (e.g., 'board' or 'activity')
 
-
   const fetchProjectData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(`/projects/${projectId}?include_stages=true&include_tasks=true`);
+      const response = await apiClient.get(
+        `/projects/${projectId}?include_stages=true&include_tasks=true`,
+      );
       setProject(response.data);
       setError(null);
     } catch (err) {
@@ -57,21 +58,22 @@ const ProjectViewPage = () => {
 
   const handleSaveTask = async (taskData) => {
     try {
-      if (editingTask && editingTask.id) { // Editing existing task
+      if (editingTask && editingTask.id) {
+        // Editing existing task
         // If stage_id is part of taskData and different, backend handles move
         await apiClient.put(`/tasks/${editingTask.id}`, taskData);
-      } else { // Creating new task
+      } else {
+        // Creating new task
         await apiClient.post(`/stages/${currentStageId}/tasks`, taskData);
       }
       fetchProjectData(); // Re-fetch all data to reflect changes
       handleCloseModal();
     } catch (err) {
-      console.error("Failed to save task:", err);
+      console.error('Failed to save task:', err);
       alert(`Error: ${err.response?.data?.message || 'Could not save task.'}`);
       // Keep modal open for correction if preferred
     }
   };
-
 
   if (loading) return <p>Loading project...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
@@ -82,9 +84,9 @@ const ProjectViewPage = () => {
       <h2>{project.name}</h2>
       <p>{project.description}</p>
       <div style={{ display: 'flex', overflowX: 'auto' }}>
-        {(project?.stages || []).map(stage => (
-          <StageColumn 
-            key={stage.id} 
+        {(project?.stages || []).map((stage) => (
+          <StageColumn
+            key={stage.id}
             stage={stage}
             onAddTask={handleOpenModalForCreate}
             onEditTask={handleOpenModalForEdit}
@@ -92,13 +94,13 @@ const ProjectViewPage = () => {
         ))}
         {/* Potentially a button to add a new stage here */}
       </div>
-      
+
       <TaskModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveTask}
         task={editingTask}
-        stageId={currentStageId} 
+        stageId={currentStageId}
       />
     </div>
   );

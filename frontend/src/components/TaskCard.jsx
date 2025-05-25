@@ -21,7 +21,7 @@ const TaskCard = ({ task, onEditTask }) => {
     color: '#555',
     marginBottom: '4px',
   };
-  
+
   const priorityColors = {
     High: 'red',
     Medium: 'orange',
@@ -35,14 +35,17 @@ const TaskCard = ({ task, onEditTask }) => {
     fontWeight: 'bold',
   };
 
-
   const formatDate = (isoString) => {
     if (!isoString) return 'Not set';
     // Basic formatting, consider a library like date-fns for more complex needs
     try {
       const date = new Date(isoString);
-      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    // eslint-disable-next-line no-unused-vars
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+      // eslint-disable-next-line no-unused-vars
     } catch (e) {
       return 'Invalid date';
     }
@@ -58,22 +61,25 @@ const TaskCard = ({ task, onEditTask }) => {
       {/* task.tags should be an array of tag objects */}
       {task.tags && task.tags.length > 0 && (
         <div style={{ marginTop: '5px' }}>
-          {task.tags.map(tag => (
-            <span key={tag.id} style={{ 
-              backgroundColor: '#e0e0e0', 
-              color: '#333',
-              padding: '2px 6px', 
-              borderRadius: '3px', 
-              fontSize: '0.8em',
-              marginRight: '4px'
-            }}>
+          {task.tags.map((tag) => (
+            <span
+              key={tag.id}
+              style={{
+                backgroundColor: '#e0e0e0',
+                color: '#333',
+                padding: '2px 6px',
+                borderRadius: '3px',
+                fontSize: '0.8em',
+                marginRight: '4px',
+              }}
+            >
               {tag.name}
             </span>
           ))}
         </div>
       )}
-      <button 
-        onClick={() => onEditTask(task)} 
+      <button
+        onClick={() => onEditTask(task)}
         style={{ marginTop: '10px', padding: '6px 10px', cursor: 'pointer' }}
       >
         Edit
