@@ -84,14 +84,14 @@ def db_session(db):
     # 1. Remove the test-specific session. This calls remove() on the scoped_session,
     #    which typically closes the underlying session and returns the connection to the pool if applicable.
     #    It's important this happens for the session the app was using.
-    db.session.remove() # or test_specific_session.remove() - they are the same object at this point
+    db.session.remove()  # or test_specific_session.remove() - they are the same object at this point
 
     # 2. Rollback the transaction to ensure test isolation
     transaction.rollback()
 
     # 3. Close the connection that was specifically created for this test
     connection.close()
-    
+
     # 4. Restore the original session to db.session for subsequent operations outside this test's scope
     #    (e.g., if other fixtures or higher-scoped setups need the original app session).
     db.session = original_session

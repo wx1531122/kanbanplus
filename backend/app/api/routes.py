@@ -454,7 +454,6 @@ def delete_task(task_id):
         project_id=project_id_for_log,
         task_id=task_id_for_log,
     )
-    
     db.session.delete(task)
     db.session.commit()
     return "", 204
@@ -747,7 +746,7 @@ def add_tag_to_task(task_id):
         return jsonify({"message": "Either tag_name or tag_id is required"}), 400
 
     tag_to_add = None
-    if tag_id is not None: # Check if tag_id is provided
+    if tag_id is not None:  # Check if tag_id is provided
         if not isinstance(tag_id, int):
             return jsonify({"message": "Invalid tag_id format, must be an integer."}), 400
         tag_to_add = Tag.query.get(tag_id)
