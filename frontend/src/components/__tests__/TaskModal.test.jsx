@@ -123,7 +123,9 @@ describe('TaskModal', () => {
       expect(screen.getByLabelText('Priority:')).toHaveValue(mockTask.priority);
 
       // As per TaskModal.jsx, Comments section (<h4>Comments</h4>) is directly visible in edit mode
-      expect(screen.getByRole('heading', {name: "Comments"})).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Comments' }),
+      ).toBeInTheDocument();
     });
 
     it('calls onSave with updated data for existing task', async () => {
@@ -148,8 +150,8 @@ describe('TaskModal', () => {
       });
     });
 
-    // Removed tests for tab switching ('switches tabs and loads content (Comments)', 
-    // 'switches tabs and loads content (Activity)') and for TagManager 
+    // Removed tests for tab switching ('switches tabs and loads content (Comments)',
+    // 'switches tabs and loads content (Activity)') and for TagManager
     // ('integrates TagManager correctly in Details tab') as TaskModal.jsx does not have tabs or TagManager.
 
     it('adding a comment calls API and refreshes comments', async () => {
@@ -172,16 +174,32 @@ describe('TaskModal', () => {
           );
         }),
         // Override GET comments to check for refresh
-        http.get('/api/tasks/1/comments', () => { // Use req to avoid unused var warning
+        http.get('/api/tasks/1/comments', () => {
+          // Use req to avoid unused var warning
           if (commentPostCalled) {
             // After POST, return new list
             return HttpResponse.json([
-              { id: 1, content: 'Comment 1', commenter_username: 'UserA', created_at: new Date().toISOString() },
-              { id: 3, content: 'Newly added comment', commenter_username: 'TestUser', created_at: new Date().toISOString() },
+              {
+                id: 1,
+                content: 'Comment 1',
+                commenter_username: 'UserA',
+                created_at: new Date().toISOString(),
+              },
+              {
+                id: 3,
+                content: 'Newly added comment',
+                commenter_username: 'TestUser',
+                created_at: new Date().toISOString(),
+              },
             ]);
           }
           return HttpResponse.json([
-            { id: 1, content: 'Comment 1', commenter_username: 'UserA', created_at: new Date().toISOString() },
+            {
+              id: 1,
+              content: 'Comment 1',
+              commenter_username: 'UserA',
+              created_at: new Date().toISOString(),
+            },
           ]);
         }),
         // No need to mock /api/tasks/1/activities if not fetched by this component
@@ -189,9 +207,9 @@ describe('TaskModal', () => {
 
       renderTaskModal({ task: mockTask, onTaskUpdated: onTaskUpdatedMock });
       // No need to click a "Comments" tab as it's directly visible.
-      
+
       // Verify initial comments are loaded
-      expect(await screen.findByText('Comment 1')).toBeInTheDocument(); 
+      expect(await screen.findByText('Comment 1')).toBeInTheDocument();
 
       const commentTextarea = screen.getByPlaceholderText('Write a comment...');
       await userEvent.type(commentTextarea, 'Newly added comment');
