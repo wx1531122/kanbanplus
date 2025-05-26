@@ -430,17 +430,31 @@ def delete_task(task_id):
     if task.stage.project.user_id != current_user_id_int:  # Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
-    user = User.query.get(current_user_id_int)  # Use int
+    # Explicitly fetch user and details needed for the log before any delete operation
+    user_for_log = User.query.get(current_user_id_int)
+    if not user_for_log:
+        # Fallback or error if user somehow not found, though JWT should protect this
+        log_username = "Unknown User"
+    else:
+        log_username = user_for_log.username
+
+    task_content_for_log = task.content
+    stage_name_for_log = task.stage.name
+    project_id_for_log = task.stage.project.id
+    task_id_for_log = task.id
+
+    # Record activity before deleting the task
     record_activity(
         action_type="TASK_DELETED",
         description=(
-            f"User '{user.username}' deleted task "
-            f"'{task.content[:30]}...' from stage '{task.stage.name}'"
+            f"User '{log_username}' deleted task "
+            f"'{task_content_for_log[:30]}...' from stage '{stage_name_for_log}'"
         ),
-        user_id=current_user_id_int,  # Use int
-        project_id=task.stage.project.id,
-        task_id=task.id,
+        user_id=current_user_id_int,
+        project_id=project_id_for_log,
+        task_id=task_id_for_log,
     )
+    
     db.session.delete(task)
     db.session.commit()
     return "", 204
@@ -733,7 +747,9 @@ def add_tag_to_task(task_id):
         return jsonify({"message": "Either tag_name or tag_id is required"}), 400
 
     tag_to_add = None
-    if tag_id:
+    if tag_id is not None: # Check if tag_id is provided
+        if not isinstance(tag_id, int):
+            return jsonify({"message": "Invalid tag_id format, must be an integer."}), 400
         tag_to_add = Tag.query.get(tag_id)
         if not tag_to_add:
             return jsonify({"message": f"Tag with id {tag_id} not found"}), 404

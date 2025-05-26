@@ -60,24 +60,41 @@ def init_database(db_session):  # Renamed from test_app to db_session to avoid c
 def db_session(db):
     """
     Yields a SQLAlchemy session for use in tests.
-    Rolls back transactions after each test to ensure test isolation.
+    Manages transactions and session lifecycle to ensure test isolation
+    and compatibility with the application's session handling.
     """
+    # Store the original session that the app uses, to restore it later
+    original_session = db.session
+
+    # Create a new connection and begin a transaction for this test
     connection = db.engine.connect()
     transaction = connection.begin()
-    # options = dict(bind=connection, binds={}) # Original line, now removed
-    # session = db.create_scoped_session(options=options) # Original line, now replaced
 
-    # Create a session factory bound to the current connection
-    custom_sessionmaker = sessionmaker(bind=connection)
-    # Create a new scoped session instance from this factory
-    session = scoped_session(custom_sessionmaker)
+    # Create a new session factory, bound to this specific connection
+    test_session_factory = sessionmaker(bind=connection)
+    # Create a new scoped session object for this test
+    test_specific_session = scoped_session(test_session_factory)
 
-    db.session = session  # Monkeypatch the main db.session to this test session
+    # Monkeypatch db.session so the app uses our test_specific_session during the test
+    db.session = test_specific_session
 
-    yield session
+    yield test_specific_session  # The test runs, using this session
 
+    # Teardown:
+    # 1. Remove the test-specific session. This calls remove() on the scoped_session,
+    #    which typically closes the underlying session and returns the connection to the pool if applicable.
+    #    It's important this happens for the session the app was using.
+    db.session.remove() # or test_specific_session.remove() - they are the same object at this point
+
+    # 2. Rollback the transaction to ensure test isolation
     transaction.rollback()
+
+    # 3. Close the connection that was specifically created for this test
     connection.close()
+    
+    # 4. Restore the original session to db.session for subsequent operations outside this test's scope
+    #    (e.g., if other fixtures or higher-scoped setups need the original app session).
+    db.session = original_session
 
 
 # --- Shared Fixtures for API Tests ---
