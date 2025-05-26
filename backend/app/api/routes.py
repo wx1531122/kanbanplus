@@ -50,7 +50,9 @@ def create_project():
     name = data["name"].strip()
     description = data.get("description", "").strip()
 
-    project = Project(name=name, description=description, user_id=current_user_id_int)  # Use int
+    project = Project(
+        name=name, description=description, user_id=current_user_id_int
+    )  # Use int
     db.session.add(project)
     db.session.commit()
 
@@ -228,7 +230,9 @@ def delete_stage(stage_id):
 
     if not stage:
         return jsonify({"message": "Stage not found"}), 404
-    if stage.project.user_id != current_user_id_int:  # Check ownership via project # Use int
+    if (
+        stage.project.user_id != current_user_id_int
+    ):  # Check ownership via project # Use int
         return jsonify({"message": "Access forbidden to this stage"}), 403
 
     db.session.delete(stage)
@@ -581,7 +585,9 @@ def create_comment(task_id):
 
     content = data["content"].strip()
 
-    comment = Comment(content=content, task_id=task.id, user_id=current_user_id_int)  # Use int
+    comment = Comment(
+        content=content, task_id=task.id, user_id=current_user_id_int
+    )  # Use int
     db.session.add(comment)
     db.session.commit()
 
@@ -650,7 +656,9 @@ def get_task_activities(task_id):
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int:  # Check ownership via project # Use int
+    if (
+        task.stage.project.user_id != current_user_id_int
+    ):  # Check ownership via project # Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     activities = (
