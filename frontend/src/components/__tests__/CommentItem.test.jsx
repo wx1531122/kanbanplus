@@ -63,6 +63,6 @@ describe('CommentItem', () => {
   it('handles invalid timestamp gracefully', () => {
     const commentWithInvalidDate = { ...mockComment, created_at: 'not-a-date' };
     render(<CommentItem comment={commentWithInvalidDate} />);
-    expect(screen.getByText('Invalid date')).toBeInTheDocument();
+    expect(screen.getByText('Invalid Date')).toBeInTheDocument();
   });
 });

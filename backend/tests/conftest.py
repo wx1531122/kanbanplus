@@ -77,8 +77,8 @@ def db_session(db):
     yield session
 
     transaction.rollback()
-    connection.close()
     session.remove()
+    connection.close()
 
 
 # --- Shared Fixtures for API Tests ---

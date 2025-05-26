@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { AuthContext } from './AuthContext'; // Assuming AuthContext.jsx is in the same directory
+import { AuthContext } from './authContextDefinition'; // Changed import path
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

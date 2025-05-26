@@ -113,9 +113,7 @@ describe('TagManager', () => {
     );
     expect(screen.getByText('Urgent')).toBeInTheDocument();
     expect(screen.getByText('Frontend')).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /Remove tag/ })).toHaveLength(
-      2,
-    );
+    expect(screen.getAllByTitle(/Remove tag ".+"/i)).toHaveLength(2);
   });
 
   it('displays "No tags yet." if task has no tags', () => {
@@ -186,7 +184,7 @@ describe('TagManager', () => {
         onTaskTagsUpdated={mockOnTaskTagsUpdated}
       />,
     );
-    const removeButtons = screen.getAllByRole('button', { name: /Remove tag/ });
+    const removeButtons = screen.getAllByTitle(/Remove tag ".+"/i);
 
     // Remove the first tag ("Urgent")
     await userEvent.click(removeButtons[0]);
@@ -243,7 +241,7 @@ describe('TagManager', () => {
         onTaskTagsUpdated={mockOnTaskTagsUpdated}
       />,
     );
-    const removeButtons = screen.getAllByRole('button', { name: /Remove tag/ });
+    const removeButtons = screen.getAllByTitle(/Remove tag ".+"/i);
 
     await userEvent.click(removeButtons[0]);
 

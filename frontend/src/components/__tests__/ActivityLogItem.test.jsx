@@ -48,6 +48,6 @@ describe('ActivityLogItem', () => {
       created_at: 'invalid-date-string',
     };
     render(<ActivityLogItem activity={activityWithInvalidDate} />);
-    expect(screen.getByText('Invalid date')).toBeInTheDocument();
+    expect(screen.getByText('Invalid Date')).toBeInTheDocument();
   });
 });

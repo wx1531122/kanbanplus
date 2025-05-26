@@ -65,7 +65,7 @@ describe('TaskCard', () => {
     render(
       <TaskCard task={taskWithInvalidDueDate} onEditTask={mockOnEditTask} />,
     );
-    expect(screen.getByText('Due: Invalid date')).toBeInTheDocument();
+    expect(screen.getByText('Due: Invalid Date')).toBeInTheDocument();
   });
 
   it('renders priority with specific style', () => {
@@ -76,7 +76,7 @@ describe('TaskCard', () => {
     expect(priorityElement).toBeInTheDocument();
     // Check for style - this is a bit implementation-dependent.
     // The component uses inline styles: color: priorityColors[task.priority]
-    expect(priorityElement).toHaveStyle('color: red'); // For 'High'
+    expect(priorityElement).toHaveStyle('color: rgb(255, 0, 0)'); // For 'High'
   });
 
   it('renders default priority "Medium" if priority is not set', () => {
