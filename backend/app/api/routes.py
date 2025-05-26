@@ -748,7 +748,10 @@ def add_tag_to_task(task_id):
     tag_to_add = None
     if tag_id is not None:  # Check if tag_id is provided
         if not isinstance(tag_id, int):
-            return jsonify({"message": "Invalid tag_id format, must be an integer."}), 400
+            return (
+                jsonify({"message": "Invalid tag_id format, must be an integer."}),
+                400,
+            )
         tag_to_add = Tag.query.get(tag_id)
         if not tag_to_add:
             return jsonify({"message": f"Tag with id {tag_id} not found"}), 404
