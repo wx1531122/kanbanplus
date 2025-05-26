@@ -172,7 +172,7 @@ describe('TaskModal', () => {
           );
         }),
         // Override GET comments to check for refresh
-        http.get('/api/tasks/1/comments', (req) => { // Use req to avoid unused var warning
+        http.get('/api/tasks/1/comments', () => { // Use req to avoid unused var warning
           if (commentPostCalled) {
             // After POST, return new list
             return HttpResponse.json([
