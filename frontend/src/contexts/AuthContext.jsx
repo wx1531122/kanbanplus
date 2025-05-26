@@ -1,7 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // createContext removed
 import apiClient from '../services/api'; // For setting default headers
-
-export const AuthContext = createContext(null);
+import { AuthContext } from './authContextDefinition'; // Added import
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('accessToken'));

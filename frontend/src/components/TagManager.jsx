@@ -113,7 +113,7 @@ const TagManager = ({ task, onTaskTagsUpdated }) => {
           className="tag-input"
           disabled={isSubmitting}
         />
-        <datalist id="all-tags-datalist">
+        <datalist id="all-tags-datalist" data-testid="all-tags-datalist">
           {allTags.map((tag) => (
             <option key={tag.id} value={tag.name} />
           ))}
