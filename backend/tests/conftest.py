@@ -1,5 +1,5 @@
 import pytest
-from backend.app import (
+from app import (
     create_app,
     db as _db,
 )  # Alias db to avoid pytest collection error
