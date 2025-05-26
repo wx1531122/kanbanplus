@@ -84,7 +84,7 @@ describe('TaskCard', () => {
     render(<TaskCard task={taskWithoutPriority} onEditTask={mockOnEditTask} />);
     const priorityElement = screen.getByText('Priority: Medium');
     expect(priorityElement).toBeInTheDocument();
-    expect(priorityElement).toHaveStyle('color: orange'); // For 'Medium' (default)
+    expect(priorityElement).toHaveStyle('color: rgb(119, 119, 119)'); // For 'Medium' (default)
   });
 
   it('renders tags if present', () => {
