@@ -77,7 +77,6 @@ def db_session(db):
     yield session
 
     transaction.rollback()
-    session.remove()
     connection.close()
 
 
