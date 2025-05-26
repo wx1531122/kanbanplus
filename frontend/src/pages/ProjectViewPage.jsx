@@ -43,8 +43,10 @@ const ProjectViewPage = () => {
       setActivities(response.data);
       setActivitiesError(null);
     } catch (err) {
-      setActivitiesError(err.response?.data?.message || 'Failed to fetch activities.');
-      console.error('Fetch Project Activities Error:',err);
+      setActivitiesError(
+        err.response?.data?.message || 'Failed to fetch activities.',
+      );
+      console.error('Fetch Project Activities Error:', err);
     } finally {
       setActivitiesLoading(false);
     }
@@ -55,8 +57,8 @@ const ProjectViewPage = () => {
     Promise.all([fetchProjectData(), fetchProjectActivities()])
       .catch((e) => {
         // Catch any error not handled by individual fetchers, though they should handle their own
-        console.error("Error during initial data fetch:", e);
-        setError("Failed to load initial project data or activities."); // Generic error
+        console.error('Error during initial data fetch:', e);
+        setError('Failed to load initial project data or activities.'); // Generic error
       })
       .finally(() => {
         setLoading(false); // Set main loading false after all fetches complete
@@ -94,7 +96,7 @@ const ProjectViewPage = () => {
         await apiClient.post(`/stages/${currentStageId}/tasks`, taskData);
       }
       // Refresh both project data (which includes tasks/stages) and activities
-      await fetchProjectData(); 
+      await fetchProjectData();
       await fetchProjectActivities();
       handleCloseModal();
     } catch (err) {

@@ -29,7 +29,11 @@ const CommentForm = ({ taskId, onCommentAdded }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="comment-form" aria-label="comment form">
+    <form
+      onSubmit={handleSubmit}
+      className="comment-form"
+      aria-label="comment form"
+    >
       {error && <p className="comment-form-error">{error}</p>}
       <textarea
         className="comment-textarea"

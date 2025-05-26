@@ -120,7 +120,9 @@ describe('LoginPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Login' }));
 
     // The error message might be generic if it's not JSON from API
-    expect(await screen.findByText(/Login failed. Please check your credentials./i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Login failed. Please check your credentials./i),
+    ).toBeInTheDocument();
   });
 
   it('shows a link to the registration page', () => {
