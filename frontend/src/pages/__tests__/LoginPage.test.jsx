@@ -102,7 +102,7 @@ describe('LoginPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Login' }));
 
     expect(
-      await screen.findByText('Login failed: Invalid email or password'),
+      await screen.findByText(/Invalid email or password/i),
     ).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
@@ -120,13 +120,13 @@ describe('LoginPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Login' }));
 
     // The error message might be generic if it's not JSON from API
-    expect(await screen.findByText(/Login failed:/)).toBeInTheDocument();
+    expect(await screen.findByText(/Login failed. Please check your credentials./i)).toBeInTheDocument();
   });
 
   it('shows a link to the registration page', () => {
     renderLoginPage();
     const registerLink = screen.getByRole('link', {
-      name: "Don't have an account? Register",
+      name: /Register here/i,
     });
     expect(registerLink).toBeInTheDocument();
     expect(registerLink).toHaveAttribute('href', '/register');

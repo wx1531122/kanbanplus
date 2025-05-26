@@ -50,9 +50,9 @@ describe('RegisterPage', () => {
     expect(
       screen.getByRole('heading', { name: 'Register' }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Username:')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email:')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password:')).toBeInTheDocument();
+    expect(screen.getByLabelText('Username')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Register' }),
     ).toBeInTheDocument();
@@ -60,21 +60,21 @@ describe('RegisterPage', () => {
 
   it('allows user to type into form fields', async () => {
     renderRegisterPage();
-    await userEvent.type(screen.getByLabelText('Username:'), 'newuser');
-    await userEvent.type(screen.getByLabelText('Email:'), 'new@example.com');
-    await userEvent.type(screen.getByLabelText('Password:'), 'securepassword');
+    await userEvent.type(screen.getByLabelText('Username'), 'newuser');
+    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'securepassword');
 
-    expect(screen.getByLabelText('Username:')).toHaveValue('newuser');
-    expect(screen.getByLabelText('Email:')).toHaveValue('new@example.com');
-    expect(screen.getByLabelText('Password:')).toHaveValue('securepassword');
+    expect(screen.getByLabelText('Username')).toHaveValue('newuser');
+    expect(screen.getByLabelText('Email')).toHaveValue('new@example.com');
+    expect(screen.getByLabelText('Password')).toHaveValue('securepassword');
   });
 
   it('submits form data and navigates to login on successful registration', async () => {
     renderRegisterPage();
 
-    await userEvent.type(screen.getByLabelText('Username:'), 'newuser');
-    await userEvent.type(screen.getByLabelText('Email:'), 'new@example.com');
-    await userEvent.type(screen.getByLabelText('Password:'), 'securepassword');
+    await userEvent.type(screen.getByLabelText('Username'), 'newuser');
+    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'securepassword');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     await waitFor(() => {
@@ -96,10 +96,10 @@ describe('RegisterPage', () => {
     renderRegisterPage();
 
     await userEvent.type(
-      screen.getByLabelText('Email:'),
+      screen.getByLabelText('Email'),
       'existing@example.com',
     );
-    await userEvent.type(screen.getByLabelText('Password:'), 'password');
+    await userEvent.type(screen.getByLabelText('Password'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     expect(
@@ -116,8 +116,8 @@ describe('RegisterPage', () => {
     );
     renderRegisterPage();
 
-    await userEvent.type(screen.getByLabelText('Email:'), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('Password:'), 'password');
+    await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     expect(await screen.findByText(/Registration failed:/)).toBeInTheDocument();
