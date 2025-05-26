@@ -1,4 +1,6 @@
 import pytest
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 from backend.app import (
     create_app,
     db as _db,
@@ -62,8 +64,14 @@ def db_session(db):
     """
     connection = db.engine.connect()
     transaction = connection.begin()
-    options = dict(bind=connection, binds={})
-    session = db.create_scoped_session(options=options)
+    # options = dict(bind=connection, binds={}) # Original line, now removed
+    # session = db.create_scoped_session(options=options) # Original line, now replaced
+
+    # Create a session factory bound to the current connection
+    custom_sessionmaker = sessionmaker(bind=connection)
+    # Create a new scoped session instance from this factory
+    session = scoped_session(custom_sessionmaker)
+
     db.session = session  # Monkeypatch the main db.session to this test session
 
     yield session
