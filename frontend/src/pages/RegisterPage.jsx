@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../services/api'; // Ensure this path is correct
 import Input from '../components/forms/Input'; // Ensure this path is correct
 import Button from '../components/forms/Button'; // Ensure this path is correct
@@ -39,7 +39,7 @@ const RegisterPage = () => {
       }, 2000); // Redirect after 2 seconds
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
+        setError('Registration failed: ' + err.response.data.message);
       } else {
         setError('Registration failed. Please try again.');
       }
@@ -91,6 +91,9 @@ const RegisterPage = () => {
           Register
         </Button>
       </form>
+      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 };

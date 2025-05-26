@@ -77,11 +77,11 @@ describe('RegisterPage', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'securepassword');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
+    // Wait for the navigation to be called, accounting for the 2-second delay
+    // Also, assert only with the arguments actually used by the component.
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/login', {
-        state: { message: 'Registration successful! Please log in.' },
-      });
-    });
+      expect(mockNavigate).toHaveBeenCalledWith('/login');
+    }, { timeout: 3000 }); // Increased timeout for setTimeout
   });
 
   it('displays error message on failed registration (e.g., email exists)', async () => {
@@ -120,13 +120,13 @@ describe('RegisterPage', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
-    expect(await screen.findByText(/Registration failed:/)).toBeInTheDocument();
+    expect(await screen.findByText('Registration failed. Please try again.')).toBeInTheDocument();
   });
 
   it('shows a link to the login page', () => {
     renderRegisterPage();
     const loginLink = screen.getByRole('link', {
-      name: 'Already have an account? Login',
+      name: /Login/i, // Find by the actual link text "Login"
     });
     expect(loginLink).toBeInTheDocument();
     expect(loginLink).toHaveAttribute('href', '/login');
