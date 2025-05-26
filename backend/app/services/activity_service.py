@@ -30,11 +30,11 @@ def record_activity(
             task_id=task_id,
         )
         db.session.add(activity)
-        db.session.commit()
+        # db.session.commit() # Let the calling route handle the commit
     except Exception as e:
         # TODO: Add more robust error handling/logging
         # (e.g., Sentry, specific logger)
         print(f"Error recording activity: {e}")
-        db.session.rollback()
+        # db.session.rollback() # Let the calling route handle rollback on error
         # Optionally re-raise or handle as appropriate for the application
-        # raise
+        raise # Re-raise the exception so the route can handle it (e.g., rollback its own transaction)
