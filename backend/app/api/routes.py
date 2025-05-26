@@ -28,7 +28,7 @@ def health_check():
 @jwt_required()
 def protected():
     current_user_id = get_jwt_identity()
-    user = User.query.get(int(current_user_id)) # Cast to int
+    user = User.query.get(int(current_user_id)) #  Cast to int
     if user:
         return jsonify(logged_in_as=user.to_dict()), 200
     return jsonify(message="User not found"), 404
@@ -41,7 +41,7 @@ def protected():
 @jwt_required()
 def create_project():
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     data = request.get_json()
 
     if not data or "name" not in data or not data["name"].strip():
@@ -50,15 +50,15 @@ def create_project():
     name = data["name"].strip()
     description = data.get("description", "").strip()
 
-    project = Project(name=name, description=description, user_id=current_user_id_int) # Use int
+    project = Project(name=name, description=description, user_id=current_user_id_int) #  Use int
     db.session.add(project)
     db.session.commit()
 
-    user = User.query.get(current_user_id_int) # Use int
+    user = User.query.get(current_user_id_int) #  Use int
     record_activity(
         action_type="PROJECT_CREATED",
         description=f"User '{user.username}' created project '{project.name}'",
-        user_id=current_user_id_int, # Use int
+        user_id=current_user_id_int, #  Use int
         project_id=project.id,
     )
     return jsonify(project.to_dict()), 201
@@ -68,9 +68,9 @@ def create_project():
 @jwt_required()
 def get_projects():
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     projects = (
-        Project.query.filter_by(user_id=current_user_id_int) # Use int
+        Project.query.filter_by(user_id=current_user_id_int) #  Use int
         .order_by(Project.created_at.desc())
         .all()
     )
@@ -81,12 +81,12 @@ def get_projects():
 @jwt_required()
 def get_project(project_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     project = Project.query.get(project_id)
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
-    if project.user_id != current_user_id_int: # Use int
+    if project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden"}), 403
 
     # Optionally include stages and tasks by default if useful
@@ -97,12 +97,12 @@ def get_project(project_id):
 @jwt_required()
 def update_project(project_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     project = Project.query.get(project_id)
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
-    if project.user_id != current_user_id_int: # Use int
+    if project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden"}), 403
 
     data = request.get_json()
@@ -113,7 +113,7 @@ def update_project(project_id):
     if "name" in data and data["name"].strip():
         project.name = data["name"].strip()
         updated = True
-    if "description" in data:  # Allow empty description
+    if "description" in data:  #  Allow empty description
         project.description = data["description"].strip()
         updated = True
 
@@ -126,12 +126,12 @@ def update_project(project_id):
 @jwt_required()
 def delete_project(project_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     project = Project.query.get(project_id)
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
-    if project.user_id != current_user_id_int: # Use int
+    if project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden"}), 403
 
     db.session.delete(project)
@@ -146,12 +146,12 @@ def delete_project(project_id):
 @jwt_required()
 def create_stage(project_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     project = Project.query.get(project_id)
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
-    if project.user_id != current_user_id_int: # Use int
+    if project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this project"}), 403
 
     data = request.get_json()
@@ -159,7 +159,7 @@ def create_stage(project_id):
         return jsonify({"message": "Stage name is required"}), 400
 
     name = data["name"].strip()
-    order = data.get("order")  # Can be None
+    order = data.get("order")  #  Can be None
 
     stage = Stage(name=name, project_id=project.id, order=order)
     db.session.add(stage)
@@ -171,12 +171,12 @@ def create_stage(project_id):
 @jwt_required()
 def get_stages_for_project(project_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     project = Project.query.get(project_id)
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
-    if project.user_id != current_user_id_int: # Use int
+    if project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this project"}), 403
 
     stages = (
@@ -191,13 +191,13 @@ def get_stages_for_project(project_id):
 @jwt_required()
 def update_stage(stage_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     stage = Stage.query.get(stage_id)
 
     if not stage:
         return jsonify({"message": "Stage not found"}), 404
     # Check ownership via project
-    if stage.project.user_id != current_user_id_int: # Use int
+    if stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this stage"}), 403
 
     data = request.get_json()
@@ -208,7 +208,7 @@ def update_stage(stage_id):
     if "name" in data and data["name"].strip():
         stage.name = data["name"].strip()
         updated = True
-    if "order" in data:  # order can be 0, so check for presence
+    if "order" in data:  #  order can be 0, so check for presence
         stage.order = data["order"]
         updated = True
     # For V1, not allowing moving stage to another project via this endpoint.
@@ -223,12 +223,12 @@ def update_stage(stage_id):
 @jwt_required()
 def delete_stage(stage_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     stage = Stage.query.get(stage_id)
 
     if not stage:
         return jsonify({"message": "Stage not found"}), 404
-    if stage.project.user_id != current_user_id_int:  # Check ownership via project # Use int
+    if stage.project.user_id != current_user_id_int:  #  Check ownership via project # Use int
         return jsonify({"message": "Access forbidden to this stage"}), 403
 
     db.session.delete(stage)
@@ -243,12 +243,12 @@ def delete_stage(stage_id):
 @jwt_required()
 def create_task(stage_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     stage = Stage.query.get(stage_id)
 
     if not stage:
         return jsonify({"message": "Stage not found"}), 404
-    if stage.project.user_id != current_user_id_int: # Use int
+    if stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this stage"}), 403
 
     data = request.get_json()
@@ -258,7 +258,7 @@ def create_task(stage_id):
     content = data["content"].strip()
     assignee = data.get("assignee", "").strip()
     priority = data.get("priority", "").strip()
-    order = data.get("order")  # Can be None
+    order = data.get("order")  #  Can be None
 
     due_date_str = data.get("due_date")
     due_date_obj = None
@@ -289,14 +289,14 @@ def create_task(stage_id):
     db.session.add(task)
     db.session.commit()
 
-    user = User.query.get(current_user_id_int) # Use int
+    user = User.query.get(current_user_id_int) #  Use int
     record_activity(
         action_type="TASK_CREATED",
         description=(
             f"User '{user.username}' created task '{task.content[:30]}...' "
             f"in stage '{stage.name}'"
         ),
-        user_id=current_user_id_int, # Use int
+        user_id=current_user_id_int, #  Use int
         project_id=stage.project_id,
         task_id=task.id,
     )
@@ -307,12 +307,12 @@ def create_task(stage_id):
 @jwt_required()
 def get_tasks_for_stage(stage_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     stage = Stage.query.get(stage_id)
 
     if not stage:
         return jsonify({"message": "Stage not found"}), 404
-    if stage.project.user_id != current_user_id_int: # Use int
+    if stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this stage"}), 403
 
     tasks = (
@@ -327,12 +327,12 @@ def get_tasks_for_stage(stage_id):
 @jwt_required()
 def get_task(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     return jsonify(task.to_dict(include_subtasks=True)), 200
@@ -342,12 +342,12 @@ def get_task(task_id):
 @jwt_required()
 def update_task(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     data = request.get_json()
@@ -384,7 +384,7 @@ def update_task(task_id):
                     ),
                     400,
                 )
-        else:  # Allow clearing due_date
+        else:  #  Allow clearing due_date
             task.due_date = None
         updated = True
 
@@ -394,20 +394,20 @@ def update_task(task_id):
             new_stage = Stage.query.get(new_stage_id)
             if not new_stage:
                 return jsonify({"message": "New stage not found"}), 404
-            if new_stage.project.user_id != current_user_id_int: # Use int
+            if new_stage.project.user_id != current_user_id_int: #  Use int
                 return jsonify({"message": "Access forbidden to new stage"}), 403
             task.stage_id = new_stage_id
             updated = True
 
     if updated:
         db.session.commit()
-        user = User.query.get(current_user_id_int) # Use int
+        user = User.query.get(current_user_id_int) #  Use int
         record_activity(
             action_type="TASK_UPDATED",
             description=(
                 f"User '{user.username}' updated task " f"'{task.content[:30]}...'"
             ),
-            user_id=current_user_id_int, # Use int
+            user_id=current_user_id_int, #  Use int
             project_id=task.stage.project.id,
             task_id=task.id,
         )
@@ -418,22 +418,22 @@ def update_task(task_id):
 @jwt_required()
 def delete_task(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
-    user = User.query.get(current_user_id_int) # Use int
+    user = User.query.get(current_user_id_int) #  Use int
     record_activity(
         action_type="TASK_DELETED",
         description=(
             f"User '{user.username}' deleted task "
             f"'{task.content[:30]}...' from stage '{task.stage.name}'"
         ),
-        user_id=current_user_id_int, # Use int
+        user_id=current_user_id_int, #  Use int
         project_id=task.stage.project.id,
         task_id=task.id,
     )
@@ -449,12 +449,12 @@ def delete_task(task_id):
 @jwt_required()
 def create_subtask(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Parent task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to parent task"}), 403
 
     data = request.get_json()
@@ -463,7 +463,7 @@ def create_subtask(task_id):
 
     content = data["content"].strip()
     completed = data.get("completed", False)
-    order = data.get("order")  # Can be None
+    order = data.get("order")  #  Can be None
 
     if not isinstance(completed, bool):
         return (
@@ -486,12 +486,12 @@ def create_subtask(task_id):
 @jwt_required()
 def get_subtasks_for_task(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Parent task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to parent task"}), 403
 
     subtasks = (
@@ -506,12 +506,12 @@ def get_subtasks_for_task(task_id):
 @jwt_required()
 def update_subtask(subtask_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     subtask = SubTask.query.get(subtask_id)
 
     if not subtask:
         return jsonify({"message": "SubTask not found"}), 404
-    if subtask.parent_task.stage.project.user_id != current_user_id_int: # Use int
+    if subtask.parent_task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this subtask"}), 403
 
     data = request.get_json()
@@ -547,12 +547,12 @@ def update_subtask(subtask_id):
 @jwt_required()
 def delete_subtask(subtask_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     subtask = SubTask.query.get(subtask_id)
 
     if not subtask:
         return jsonify({"message": "SubTask not found"}), 404
-    if subtask.parent_task.stage.project.user_id != current_user_id_int: # Use int
+    if subtask.parent_task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this subtask"}), 403
 
     db.session.delete(subtask)
@@ -567,12 +567,12 @@ def delete_subtask(subtask_id):
 @jwt_required()
 def create_comment(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     data = request.get_json()
@@ -581,17 +581,17 @@ def create_comment(task_id):
 
     content = data["content"].strip()
 
-    comment = Comment(content=content, task_id=task.id, user_id=current_user_id_int) # Use int
+    comment = Comment(content=content, task_id=task.id, user_id=current_user_id_int) #  Use int
     db.session.add(comment)
     db.session.commit()
 
-    user = User.query.get(current_user_id_int) # Use int
+    user = User.query.get(current_user_id_int) #  Use int
     record_activity(
         action_type="COMMENT_ADDED",
         description=(
             f"User '{user.username}' commented on task " f"'{task.content[:30]}...'"
         ),
-        user_id=current_user_id_int, # Use int
+        user_id=current_user_id_int, #  Use int
         project_id=task.stage.project.id,
         task_id=task.id,
     )
@@ -602,12 +602,12 @@ def create_comment(task_id):
 @jwt_required()
 def get_comments_for_task(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     comments = (
@@ -625,12 +625,12 @@ def get_comments_for_task(task_id):
 @jwt_required()
 def get_project_activities(project_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     project = Project.query.get(project_id)
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
-    if project.user_id != current_user_id_int: # Use int
+    if project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this project"}), 403
 
     activities = (
@@ -645,12 +645,12 @@ def get_project_activities(project_id):
 @jwt_required()
 def get_task_activities(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int:  # Check ownership via project # Use int
+    if task.stage.project.user_id != current_user_id_int:  #  Check ownership via project # Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     activities = (
@@ -690,7 +690,7 @@ def create_tag():
         db.session.commit()
     except (
         IntegrityError
-    ):  # Handles potential race conditions if another request creates the same tag
+    ):  #  Handles potential race conditions if another request creates the same tag
         db.session.rollback()
         existing_tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
         if existing_tag:
@@ -709,12 +709,12 @@ def create_tag():
 @jwt_required()
 def add_tag_to_task(task_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     data = request.get_json()
@@ -747,7 +747,7 @@ def add_tag_to_task(task_id):
                 tag_to_add = Tag.query.filter(
                     db.func.lower(Tag.name) == tag_name.lower()
                 ).first()
-                if not tag_to_add:  # Should not happen if previous logic is correct
+                if not tag_to_add:  #  Should not happen if previous logic is correct
                     return jsonify({"message": "Error creating or finding tag."}), 500
 
     if tag_to_add in task.tags:
@@ -759,19 +759,19 @@ def add_tag_to_task(task_id):
                 }
             ),
             200,
-        )  # Or 409
+        )  #  Or 409
 
     task.tags.append(tag_to_add)
     db.session.commit()
 
-    user = User.query.get(current_user_id_int) # Use int
+    user = User.query.get(current_user_id_int) #  Use int
     record_activity(
         action_type="TAG_ADDED_TO_TASK",
         description=(
             f"User '{user.username}' added tag '{tag_to_add.name}' "
             f"to task '{task.content[:30]}...'"
         ),
-        user_id=current_user_id_int, # Use int
+        user_id=current_user_id_int, #  Use int
         project_id=task.stage.project.id,
         task_id=task.id,
     )
@@ -782,12 +782,12 @@ def add_tag_to_task(task_id):
 @jwt_required()
 def remove_tag_from_task(task_id, tag_id):
     current_user_id = get_jwt_identity()
-    current_user_id_int = int(current_user_id) # Added int conversion
+    current_user_id_int = int(current_user_id) #  Added int conversion
     task = Task.query.get(task_id)
 
     if not task:
         return jsonify({"message": "Task not found"}), 404
-    if task.stage.project.user_id != current_user_id_int: # Use int
+    if task.stage.project.user_id != current_user_id_int: #  Use int
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     tag_to_remove = Tag.query.get(tag_id)
@@ -798,19 +798,19 @@ def remove_tag_from_task(task_id, tag_id):
         return (
             jsonify({"message": "Tag not found on this task"}),
             404,
-        )  # Or 204 if we consider it idempotent
+        )  #  Or 204 if we consider it idempotent
 
     task.tags.remove(tag_to_remove)
     db.session.commit()
 
-    user = User.query.get(current_user_id_int) # Use int
+    user = User.query.get(current_user_id_int) #  Use int
     record_activity(
         action_type="TAG_REMOVED_FROM_TASK",
         description=(
             f"User '{user.username}' removed tag '{tag_to_remove.name}' "
             f"from task '{task.content[:30]}...'"
         ),
-        user_id=current_user_id_int, # Use int
+        user_id=current_user_id_int, #  Use int
         project_id=task.stage.project.id,
         task_id=task.id,
     )
