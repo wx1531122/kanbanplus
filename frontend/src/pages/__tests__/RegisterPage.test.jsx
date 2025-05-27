@@ -74,8 +74,11 @@ describe('RegisterPage', () => {
     const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime }); // Use with fake timers
     renderRegisterPage();
     await user.type(screen.getByLabelText('Username'), 'newuser');
+    vi.runAllTimers();
     await user.type(screen.getByLabelText('Email'), 'new@example.com');
+    vi.runAllTimers();
     await user.type(screen.getByLabelText('Password'), 'securepassword');
+    vi.runAllTimers();
 
     expect(screen.getByLabelText('Username')).toHaveValue('newuser');
     expect(screen.getByLabelText('Email')).toHaveValue('new@example.com');
@@ -90,6 +93,7 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText('Email'), 'new@example.com');
     await user.type(screen.getByLabelText('Password'), 'securepassword');
     await user.click(screen.getByRole('button', { name: 'Register' }));
+    vi.runAllTimers();
 
     // Wait for the navigation to be called, accounting for the 2-second delay
     // Also, assert only with the arguments actually used by the component.
@@ -118,6 +122,7 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText('Email'), 'existing@example.com');
     await user.type(screen.getByLabelText('Password'), 'password');
     await user.click(screen.getByRole('button', { name: 'Register' }));
+    vi.runAllTimers(); // Added
     vi.runAllTimers(); // Try flushing all timers
 
     expect(
@@ -144,6 +149,7 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText('Email'), 'test@example.com');
     await user.type(screen.getByLabelText('Password'), 'password');
     await user.click(screen.getByRole('button', { name: 'Register' }));
+    vi.runAllTimers();
 
     // Diagnostic waitFor:
     let diagnosticFlag = false;

@@ -30,7 +30,7 @@ def record_activity(
             task_id=task_id,
         )
         db.session.add(activity)
-        db.session.commit()  # Ensure this commit is intended or handled by a larger transaction
+        # db.session.commit() # Removed: Commit should be handled by the calling route/transaction
     except Exception as e:
         # TODO: Add more robust error handling/logging
         # (e.g., Sentry, specific logger)

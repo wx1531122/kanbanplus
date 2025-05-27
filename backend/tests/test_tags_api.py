@@ -52,8 +52,8 @@ def test_create_and_list_tags(test_client, auth_headers, db_session):
     assert found_tag2
 
 
-def test_create_tag_missing_name(test_client, auth_headers_tags):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
+def test_create_tag_missing_name(test_client, auth_headers):
+    headers = {"Authorization": auth_headers["Authorization"]}
     # Test with an empty JSON payload, which might be caught by a global handler as 422
     response = test_client.post("/api/tags", headers=headers, json={})
     assert (
@@ -77,11 +77,11 @@ def test_create_tag_missing_name(test_client, auth_headers_tags):
 
 # POST /api/tasks/<task_id>/tags
 def test_add_tag_to_task_by_id_and_name(
-    test_client, auth_headers_tags, created_task_for_tags, db_session
+    test_client, auth_headers, created_task_data, db_session
 ):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
-    task_id = created_task_for_tags["task_id"]
-    project_id = created_task_for_tags["project_id"]  # For activity log check
+    headers = {"Authorization": auth_headers["Authorization"]}
+    task_id = created_task_data["task_id"]
+    project_id = created_task_data["project_id"]  # For activity log check
 
     # Create a tag first
     tag_name_existing = "ExistingTag"
@@ -151,10 +151,10 @@ def test_add_tag_to_task_by_id_and_name(
 
 
 def test_add_tag_to_task_invalid_input(
-    test_client, auth_headers_tags, created_task_for_tags
+    test_client, auth_headers, created_task_data
 ):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
-    task_id = created_task_for_tags["task_id"]
+    headers = {"Authorization": auth_headers["Authorization"]}
+    task_id = created_task_data["task_id"]
 
     # No tag_id or tag_name - this might also be caught as 422 if payload is truly empty by a global handler
     response = test_client.post(f"/api/tasks/{task_id}/tags", headers=headers, json={})
@@ -174,8 +174,8 @@ def test_add_tag_to_task_invalid_input(
     assert "Tag with id 9999 not found" in response_bad_id.json["message"]
 
 
-def test_add_tag_to_non_existent_task(test_client, auth_headers_tags):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
+def test_add_tag_to_non_existent_task(test_client, auth_headers):
+    headers = {"Authorization": auth_headers["Authorization"]}
     response = test_client.post(
         "/api/tasks/8888/tags", headers=headers, json={"tag_name": "SomeTag"}
     )
@@ -195,11 +195,11 @@ def test_add_tag_to_task_unauthorized(
 
 # DELETE /api/tasks/<task_id>/tags/<tag_id>
 def test_remove_tag_from_task(
-    test_client, auth_headers_tags, created_task_for_tags, db_session
+    test_client, auth_headers, created_task_data, db_session
 ):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
-    task_id = created_task_for_tags["task_id"]
-    project_id = created_task_for_tags["project_id"]
+    headers = {"Authorization": auth_headers["Authorization"]}
+    task_id = created_task_data["task_id"]
+    project_id = created_task_data["project_id"]
 
     # Add two tags first
     tag1_name = "TagToRemove1"
@@ -257,10 +257,10 @@ def test_remove_tag_from_task(
 
 
 def test_remove_tag_unauthorized_or_forbidden(
-    test_client, auth_headers_tags, created_task_for_tags
+    test_client, auth_headers, created_task_data
 ):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
-    task_id = created_task_for_tags["task_id"]
+    headers = {"Authorization": auth_headers["Authorization"]}
+    task_id = created_task_data["task_id"]
     tag_to_add_res = test_client.post(
         "/api/tags", headers=headers, json={"name": "TempTagForDeleteTest"}
     )
@@ -294,10 +294,10 @@ def test_remove_tag_unauthorized_or_forbidden(
 
 # Test Task.to_dict() includes tags
 def test_task_to_dict_includes_tags(
-    test_client, auth_headers_tags, created_task_for_tags, db_session
+    test_client, auth_headers, created_task_data, db_session
 ):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
-    task_id = created_task_for_tags["task_id"]
+    headers = {"Authorization": auth_headers["Authorization"]}
+    task_id = created_task_data["task_id"]
 
     # Add some tags
     tag_names = ["AlphaTag", "BetaTag"]
@@ -350,10 +350,10 @@ def test_task_to_dict_includes_tags(
 
 # Test adding tag by name where name is mixed case (should find existing if present, or create with given case)
 def test_add_tag_by_mixed_case_name(
-    test_client, auth_headers_tags, created_task_for_tags, db_session
+    test_client, auth_headers, created_task_data, db_session
 ):
-    headers = {"Authorization": auth_headers_tags["Authorization"]}
-    task_id = created_task_for_tags["task_id"]
+    headers = {"Authorization": auth_headers["Authorization"]}
+    task_id = created_task_data["task_id"]
 
     # 1. Create a tag with a specific casing
     original_tag_name = "MixedCaseTag"
