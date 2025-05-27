@@ -185,7 +185,16 @@ class ActivityLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=True)
     task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=True)
+    details = db.Column(db.JSON, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, action_type, user_id, description, project_id=None, task_id=None, details=None):
+        self.action_type = action_type
+        self.user_id = user_id
+        self.description = description
+        self.project_id = project_id
+        self.task_id = task_id
+        self.details = details
 
     def __repr__(self):
         return f"<ActivityLog {self.action_type} by User {self.user_id}>"
@@ -201,6 +210,7 @@ class ActivityLog(db.Model):
             ),  # Include username
             "project_id": self.project_id,
             "task_id": self.task_id,
+            "details": self.details,  # Include details in to_dict
             "created_at": self.created_at.isoformat(),
         }
 

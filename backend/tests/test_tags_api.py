@@ -56,23 +56,15 @@ def test_create_tag_missing_name(test_client, auth_headers):
     headers = {"Authorization": auth_headers["Authorization"]}
     # Test with an empty JSON payload, which might be caught by a global handler as 422
     response = test_client.post("/api/tags", headers=headers, json={})
-    assert (
-        response.status_code == 422
-    )  # Assuming a global handler for malformed/empty JSON
-    # The exact message for 422 can vary; "Unprocessable Entity" is common, or it might be more specific
-    # For now, let's check if "message" exists and is a string, or adjust if a specific structure is known.
-    # Based on error log: AssertionError: assert 'Unprocessable Entity' == 'Tag name is required'
-    # This means response.json['message'] was 'Unprocessable Entity'
-    assert "Unprocessable Entity" in response.json.get(
-        "message", ""
-    ) or "Invalid payload" in response.json.get("message", "")
+    assert response.status_code == 422
+    assert response.json.get("message") == "Tag name is required and cannot be empty"
 
-    # Test with name present but empty after stripping, should hit route's 400 logic
+    # Test with name present but empty after stripping
     response_empty = test_client.post(
         "/api/tags", headers=headers, json={"name": "   "}
     )
-    assert response_empty.status_code == 400
-    assert response_empty.json["message"] == "Tag name is required"
+    assert response_empty.status_code == 422 # Should also be 422 as per route logic
+    assert response_empty.json.get("message") == "Tag name is required and cannot be empty"
 
 
 # POST /api/tasks/<task_id>/tags
@@ -158,13 +150,8 @@ def test_add_tag_to_task_invalid_input(
 
     # No tag_id or tag_name - this might also be caught as 422 if payload is truly empty by a global handler
     response = test_client.post(f"/api/tasks/{task_id}/tags", headers=headers, json={})
-    assert (
-        response.status_code == 422
-    )  # Assuming a global handler for malformed/empty JSON
-    # Based on error log: AssertionError: assert 'Unprocessable Entity' == 'Either tag_name or tag_id is required'
-    assert "Unprocessable Entity" in response.json.get(
-        "message", ""
-    ) or "Invalid payload" in response.json.get("message", "")
+    assert response.status_code == 422
+    assert response.json.get("message") == "Either tag_name (non-empty) or tag_id is required"
 
     # Non-existent tag_id
     response_bad_id = test_client.post(

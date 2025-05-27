@@ -8,6 +8,7 @@ def record_activity(
     description: str,
     project_id: int = None,
     task_id: int = None,
+    details: dict = None,
 ):
     """
     Records an activity in the ActivityLog.
@@ -20,21 +21,21 @@ def record_activity(
             activity. Defaults to None.
         task_id (int, optional): The ID of the task related to the activity.
             Defaults to None.
+        details (dict, optional): Additional details about the activity.
+            Defaults to None.
     """
+    activity = ActivityLog( # This instantiation should be correct now
+        action_type=action_type,
+        user_id=user_id,
+        description=description,
+        project_id=project_id,
+        task_id=task_id,
+        details=details, 
+    )
     try:
-        activity = ActivityLog(
-            action_type=action_type,
-            user_id=user_id,
-            description=description,
-            project_id=project_id,
-            task_id=task_id,
-        )
         db.session.add(activity)
-        # db.session.commit() # Removed: Commit should be handled by the calling route/transaction
+        db.session.commit() # Ensure commit is attempted
     except Exception as e:
-        # TODO: Add more robust error handling/logging
-        # (e.g., Sentry, specific logger)
-        print(f"Error recording activity: {e}")
-        # db.session.rollback() # Let the calling route handle rollback on error
-        # Optionally re-raise or handle as appropriate for the application
-        raise  # Re-raise the exception so the route can handle it (e.g., rollback its own transaction)
+        db.session.rollback()
+        # Optional: Log the error e.g., current_app.logger.error(f"Error recording activity: {e}")
+        raise # Re-raise to allow calling transaction to handle it
