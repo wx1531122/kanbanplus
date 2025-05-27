@@ -26,7 +26,8 @@ const renderRegisterPage = () => {
         {' '}
         {/* AuthProvider might not be strictly necessary if RegisterPage doesn't use context directly, but good for consistency */}
         <RegisterPage />
-      </AuthProvider>{/* Trailing comma added */}
+      </AuthProvider>
+      {/* Trailing comma added */}
     </MemoryRouter>,
   );
 };

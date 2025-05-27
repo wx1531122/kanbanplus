@@ -24,18 +24,18 @@ def record_activity(
         details (dict, optional): Additional details about the activity.
             Defaults to None.
     """
-    activity = ActivityLog( # This instantiation should be correct now
+    activity = ActivityLog(  # This instantiation should be correct now
         action_type=action_type,
         user_id=user_id,
         description=description,
         project_id=project_id,
         task_id=task_id,
-        details=details, 
+        details=details,
     )
     try:
         db.session.add(activity)
-        db.session.commit() # Ensure commit is attempted
-    except Exception as e:
+        db.session.commit()  # Ensure commit is attempted
+    except Exception:
         db.session.rollback()
         # Optional: Log the error e.g., current_app.logger.error(f"Error recording activity: {e}")
-        raise # Re-raise to allow calling transaction to handle it
+        raise  # Re-raise to allow calling transaction to handle it
