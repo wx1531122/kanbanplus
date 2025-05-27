@@ -26,7 +26,7 @@ const RegisterPage = () => {
       const response = await apiClient.post('/auth/register', {
         username,
         email,
-        password,
+        password, // Trailing comma
       });
       setSuccessMessage(response.data.message + ' Redirecting to login...');
       // Clear form
@@ -60,7 +60,7 @@ const RegisterPage = () => {
         margin: '2rem auto',
         padding: '2rem',
         border: '1px solid #eee',
-        borderRadius: '8px',
+        borderRadius: '8px', // Trailing comma
       }}
     >
       <h2>Register</h2>
@@ -74,7 +74,7 @@ const RegisterPage = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
-          required
+          required // Trailing comma
         />
         <Input
           label="Email"
@@ -83,7 +83,7 @@ const RegisterPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          required
+          required // Trailing comma
         />
         <Input
           label="Password"
@@ -92,13 +92,13 @@ const RegisterPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Choose a password"
-          required
+          required // Trailing comma
         />
-        <Button type="submit" style={{ width: '100%', marginTop: '1rem' }}>
+        <Button type="submit" style={{ width: '100%', marginTop: '1rem' }}> 
           Register
         </Button>
       </form>
-      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+      <p style={{ marginTop: '1rem', textAlign: 'center' }}> {/* Trailing comma inside style if multi-lined, but this one is simple enough. Kept as is. */}
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
