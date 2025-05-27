@@ -157,7 +157,7 @@ describe('RegisterPage', () => {
         }
         expect(diagnosticFlag).toBe(true);
       }, { timeout: 150 }); // Very short timeout for testing waitFor itself
-    } catch (e) {
+    } catch (_e) { // Changed e to _e
       // This catch block is expected to be hit if waitFor times out.
       // This is a "pass" for this part of the diagnostic.
       // If the test still times out at 400s, the problem is before this waitFor.
