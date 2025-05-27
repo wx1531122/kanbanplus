@@ -696,10 +696,14 @@ def get_tags():
 @jwt_required()
 def create_tag():
     data = request.get_json()
-    if not data or "name" not in data or not data["name"].strip():
-        return jsonify({"message": "Tag name is required"}), 400
+    if not data: 
+        return jsonify({"message": "Request body must be JSON"}), 400
+    
+    name_input = data.get("name") # Renamed for clarity
+    if not name_input or not name_input.strip():
+        return jsonify({"message": "Tag name is required and cannot be empty"}), 422
 
-    name = data["name"].strip()
+    name = name_input.strip() # Use the stripped name
     existing_tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
 
     if existing_tag:
@@ -739,40 +743,44 @@ def add_tag_to_task(task_id):
         return jsonify({"message": "Access forbidden to this task"}), 403
 
     data = request.get_json()
-    tag_name = data.get("tag_name", "").strip()
-    tag_id = data.get("tag_id")
+    tag_name_input = data.get("tag_name")
+    tag_id_input = data.get("tag_id") # Renamed for clarity
 
-    if not tag_name and not tag_id:
-        return jsonify({"message": "Either tag_name or tag_id is required"}), 400
+    tag_name_stripped = ""
+    if tag_name_input and isinstance(tag_name_input, str):
+        tag_name_stripped = tag_name_input.strip()
+
+    if not tag_name_stripped and tag_id_input is None:
+        return jsonify({"message": "Either tag_name (non-empty) or tag_id is required"}), 422
 
     tag_to_add = None
-    if tag_id is not None:  # Check if tag_id is provided
-        if not isinstance(tag_id, int):
-            return (
-                jsonify({"message": "Invalid tag_id format, must be an integer."}),
-                400,
-            )
-        tag_to_add = Tag.query.get(tag_id)
+    
+    if tag_id_input is not None: # Prioritize tag_id if provided
+        if not isinstance(tag_id_input, int):
+            return jsonify({"message": "Invalid tag_id format, must be an integer."}), 400
+        tag_to_add = Tag.query.get(tag_id_input)
         if not tag_to_add:
-            return jsonify({"message": f"Tag with id {tag_id} not found"}), 404
-    elif tag_name:
-        tag_to_add = Tag.query.filter(
-            db.func.lower(Tag.name) == tag_name.lower()
-        ).first()
-        if not tag_to_add:
-            # Create the tag if it doesn't exist
-            tag_to_add = Tag(name=tag_name)
+            return jsonify({"message": f"Tag with id {tag_id_input} not found"}), 404
+    elif tag_name_stripped: # Only process tag_name if tag_id was not provided
+        existing_tag_by_name = Tag.query.filter(db.func.lower(Tag.name) == tag_name_stripped.lower()).first()
+        if existing_tag_by_name:
+            tag_to_add = existing_tag_by_name
+        else:
+            # Create new tag if it doesn't exist by name (case-insensitive check done)
+            tag_to_add = Tag(name=tag_name_stripped) 
             db.session.add(tag_to_add)
-            # Create the tag if it doesn't exist
-            tag_to_add = Tag(name=tag_name)
-            db.session.add(tag_to_add)
-            # Defer commit until after association and activity logging
-
-    if tag_to_add is None:
-        # This case should ideally be caught by earlier checks if both tag_id and tag_name are missing,
-        # or if tag_id was provided but not found, and tag_name was not provided.
-        # However, as a safeguard:
-        return jsonify({"message": "Tag could not be determined or created."}), 500
+            try:
+                db.session.flush() # Attempt to get ID and check constraints before full commit
+            except IntegrityError: 
+                db.session.rollback()
+                # Re-fetch in case of race condition or if the DB's collation caused an issue not caught by lower().
+                tag_to_add = Tag.query.filter(db.func.lower(Tag.name) == tag_name_stripped.lower()).first()
+                if not tag_to_add:
+                    return jsonify({"message": "Error creating tag due to conflict."}), 500
+    
+    if tag_to_add is None: 
+        # Fallback if logic somehow allows tag_to_add to be None (e.g. tag_id not found and no tag_name)
+        return jsonify({"message": "Tag could not be determined or created."}), 400
 
     if tag_to_add in task.tags:
         return (
@@ -787,62 +795,36 @@ def add_tag_to_task(task_id):
 
     task.tags.append(tag_to_add)
 
-    # Record activity before the commit
+    # Check if tag is already associated
+    if tag_to_add in task.tags:
+        return jsonify(task.to_dict(include_subtasks=True, include_tags=True)), 200 
+
+    task.tags.append(tag_to_add)
+    
     user = User.query.get(current_user_id_int)
-    if not user:  # Should not happen due to @jwt_required
-        return jsonify({"message": "User for logging not found"}), 500
-    record_activity(
-        action_type="TAG_ADDED_TO_TASK",
-        description=(
-            f"User '{user.username}' added tag '{tag_to_add.name}' "
-            f"to task '{task.content[:30]}...'"
-        ),
-        user_id=current_user_id_int,
-        project_id=task.stage.project.id,
-        task_id=task.id,
-    )
+    if not user: 
+         db.session.rollback() 
+         return jsonify({"message": "User for logging not found"}), 500
+
     try:
-        db.session.commit()  # Commits new tag (if any), association, and activity log
-    except IntegrityError as e:
+        # record_activity will commit its own session for the log.
+        # The main session commit for task-tag association happens after.
+        record_activity(
+            action_type="TAG_ADDED_TO_TASK",
+            description=(
+                f"User '{user.username}' added tag '{tag_to_add.name}' "
+                f"to task '{task.content[:30]}...'"
+            ),
+            user_id=current_user_id_int,
+            project_id=task.stage.project.id,
+            task_id=task.id,
+            details={"tag_id": tag_to_add.id, "tag_name": tag_to_add.name}
+        )
+        db.session.commit() # Commit task-tag association
+    except IntegrityError: 
         db.session.rollback()
-        # Check if it was a race condition on tag creation specifically
-        if "tags_name_key" in str(
-            e.orig
-        ) or "UNIQUE constraint failed: tag.name" in str(
-            e.orig
-        ):  # Adapt based on DB
-            # Fetch the now-existing tag
-            existing_tag_after_race = Tag.query.filter(
-                db.func.lower(Tag.name) == tag_name.lower()
-            ).first()
-            if existing_tag_after_race and existing_tag_after_race not in task.tags:
-                task.tags.append(existing_tag_after_race)
-                # Re-record activity for the correct tag if it was a race condition for new tag
-                record_activity(
-                    action_type="TAG_ADDED_TO_TASK",
-                    description=(
-                        f"User '{user.username}' added tag '{existing_tag_after_race.name}' "
-                        f"to task '{task.content[:30]}...'"
-                    ),
-                    user_id=current_user_id_int,
-                    project_id=task.stage.project.id,
-                    task_id=task.id,
-                )
-                db.session.commit()  # Commit the new association
-            elif existing_tag_after_race and existing_tag_after_race in task.tags:
-                # Tag was created by another request and already associated, or associated in this session before rollback
-                pass  # Already handled or present
-            else:  # Some other integrity error
-                return (
-                    jsonify(
-                        {
-                            "message": "Database integrity error after attempting to handle tag creation race condition."
-                        }
-                    ),
-                    500,
-                )
-        else:  # Other integrity error not related to tag name uniqueness
-            return jsonify({"message": "Database integrity error."}), 500
+        return jsonify({"message": "Database error occurred while associating tag with task."}), 500
+        
     return jsonify(task.to_dict(include_subtasks=True, include_tags=True)), 200
 
 
