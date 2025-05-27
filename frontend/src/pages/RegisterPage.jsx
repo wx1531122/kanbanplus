@@ -38,11 +38,8 @@ const RegisterPage = () => {
         navigate('/login');
       }, 2000); // Redirect after 2 seconds
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError('Registration failed: ' + err.response.data.message);
-      } else {
-        setError('Registration failed. Please try again.');
-      }
+      // Simplified catch block for extreme debugging of timeout
+      setError('Registration failed. Please try again.');
     }
   };
 
@@ -59,7 +56,7 @@ const RegisterPage = () => {
       <h2>Register</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} data-testid="registration-form">
         <Input
           label="Username"
           type="text"
