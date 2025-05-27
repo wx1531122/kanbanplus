@@ -26,7 +26,7 @@ const renderRegisterPage = () => {
         {' '}
         {/* AuthProvider might not be strictly necessary if RegisterPage doesn't use context directly, but good for consistency */}
         <RegisterPage />
-      </AuthProvider>
+      </AuthProvider>{/* Trailing comma added */}
     </MemoryRouter>,
   );
 };
@@ -44,9 +44,9 @@ describe('RegisterPage', () => {
       http.post('/api/auth/register', () => {
         return HttpResponse.json(
           { message: 'User registered successfully' },
-          { status: 201 },
-        );
-      }),
+          { status: 201 }, // Trailing comma
+        ); // Trailing comma
+      }), // Trailing comma
     );
   });
 
@@ -108,8 +108,8 @@ describe('RegisterPage', () => {
       isAxiosError: true,
       response: {
         data: { message: 'Email already exists' },
-        status: 409,
-      },
+        status: 409, // Trailing comma
+      }, // Trailing comma
     });
 
     renderRegisterPage();
@@ -136,8 +136,8 @@ describe('RegisterPage', () => {
       isAxiosError: true,
       response: { // This mock will hit the component's 'else' branch in the catch block
         data: 'Server Error Details', // or simply make it an error that doesn't have err.response.data.message
-        status: 500,
-      },
+        status: 500, // Trailing comma
+      }, // Trailing comma
     });
 
     renderRegisterPage();
