@@ -789,9 +789,8 @@ def add_tag_to_task(task_id):
 
     # Record activity before the commit
     user = User.query.get(current_user_id_int)
-    if not user: # Should not happen due to @jwt_required
-        return jsonify({"message":"User for logging not found"}), 500
-        
+    if not user:  # Should not happen due to @jwt_required
+        return jsonify({"message": "User for logging not found"}), 500
     record_activity(
         action_type="TAG_ADDED_TO_TASK",
         description=(
@@ -802,14 +801,13 @@ def add_tag_to_task(task_id):
         project_id=task.stage.project.id,
         task_id=task.id,
     )
-    
     try:
-        db.session.commit() # Commits new tag (if any), association, and activity log
+        db.session.commit()  # Commits new tag (if any), association, and activity log
     except IntegrityError as e:
         db.session.rollback()
         # Check if it was a race condition on tag creation specifically
-        if "tags_name_key" in str(e.orig) or "UNIQUE constraint failed: tag.name" in str(e.orig): # Adapt based on DB
-             # Fetch the now-existing tag
+        if "tags_name_key" in str(e.orig) or "UNIQUE constraint failed: tag.name" in str(e.orig):  # Adapt based on DB
+            # Fetch the now-existing tag
             existing_tag_after_race = Tag.query.filter(db.func.lower(Tag.name) == tag_name.lower()).first()
             if existing_tag_after_race and existing_tag_after_race not in task.tags:
                 task.tags.append(existing_tag_after_race)
@@ -824,15 +822,14 @@ def add_tag_to_task(task_id):
                     project_id=task.stage.project.id,
                     task_id=task.id,
                 )
-                db.session.commit() # Commit the new association
+                db.session.commit()  # Commit the new association
             elif existing_tag_after_race and existing_tag_after_race in task.tags:
-                 # Tag was created by another request and already associated, or associated in this session before rollback
-                 pass # Already handled or present
-            else: # Some other integrity error
-                 return jsonify({"message": "Database integrity error after attempting to handle tag creation race condition."}), 500
-        else: # Other integrity error not related to tag name uniqueness
+                # Tag was created by another request and already associated, or associated in this session before rollback
+                pass  # Already handled or present
+            else:  # Some other integrity error
+                return jsonify({"message": "Database integrity error after attempting to handle tag creation race condition."}), 500
+        else:  # Other integrity error not related to tag name uniqueness
             return jsonify({"message": "Database integrity error."}), 500
-            
     return jsonify(task.to_dict(include_subtasks=True, include_tags=True)), 200
 
 
@@ -862,18 +859,18 @@ def remove_tag_from_task(task_id, tag_id):
 
     # Record activity before the commit
     user = User.query.get(current_user_id_int)
-    if not user: # Should not happen due to @jwt_required
-        return jsonify({"message":"User for logging not found"}), 500
+    if not user:  # Should not happen due to @jwt_required
+        return jsonify({"message": "User for logging not found"}), 500
 
     record_activity(
         action_type="TAG_REMOVED_FROM_TASK",
         description=(
             f"User '{user.username}' removed tag '{tag_to_remove.name}' "
-            f"from task '{task.content[:30]}...'" # Content might be stale if task was updated then tag removed
+            f"from task '{task.content[:30]}...'"  # Content might be stale if task was updated then tag removed
         ),
         user_id=current_user_id_int,
         project_id=task.stage.project.id,
         task_id=task.id,
     )
-    db.session.commit() # Commits tag removal and activity log
+    db.session.commit()  # Commits tag removal and activity log
     return "", 204
