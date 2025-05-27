@@ -37,4 +37,4 @@ def record_activity(
         print(f"Error recording activity: {e}")
         # db.session.rollback() # Let the calling route handle rollback on error
         # Optionally re-raise or handle as appropriate for the application
-        raise # Re-raise the exception so the route can handle it (e.g., rollback its own transaction)
+        raise  # Re-raise the exception so the route can handle it (e.g., rollback its own transaction)
