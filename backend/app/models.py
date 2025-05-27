@@ -124,7 +124,7 @@ class Task(db.Model):
         "Comment", backref="task", lazy="dynamic", cascade="all, delete-orphan"
     )
     activity_logs = db.relationship(
-        "ActivityLog", backref="task", lazy="dynamic" # Cascade removed
+        "ActivityLog", backref="task", lazy="dynamic"  # Cascade removed
     )
     tags = db.relationship(
         "Tag",

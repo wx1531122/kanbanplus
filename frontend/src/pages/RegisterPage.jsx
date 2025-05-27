@@ -94,11 +94,13 @@ const RegisterPage = () => {
           placeholder="Choose a password"
           required // Trailing comma
         />
-        <Button type="submit" style={{ width: '100%', marginTop: '1rem' }}> 
+        <Button type="submit" style={{ width: '100%', marginTop: '1rem' }}>
           Register
         </Button>
       </form>
-      <p style={{ marginTop: '1rem', textAlign: 'center' }}> {/* Trailing comma inside style if multi-lined, but this one is simple enough. Kept as is. */}
+      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+        {' '}
+        {/* Trailing comma inside style if multi-lined, but this one is simple enough. Kept as is. */}
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>

@@ -63,7 +63,7 @@ def test_create_tag_missing_name(test_client, auth_headers):
     response_empty = test_client.post(
         "/api/tags", headers=headers, json={"name": "   "}
     )
-    assert response_empty.status_code == 422 # Should also be 422 as per route logic
+    assert response_empty.status_code == 422  # Should also be 422 as per route logic
     assert response_empty.json.get("message") == "Tag name is required and cannot be empty"
 
 
