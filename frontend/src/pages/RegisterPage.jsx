@@ -39,10 +39,14 @@ const RegisterPage = () => {
       }, 2000); // Redirect after 2 seconds
     } catch (err) {
       // Handles specific JSON error messages from the server that have a `message` property
-      if (err.response && err.response.data && typeof err.response.data.message === 'string') {
+      if (
+        err.response &&
+        err.response.data &&
+        typeof err.response.data.message === 'string'
+      ) {
         setError('Registration failed: ' + err.response.data.message);
-      } else { 
-        // Handles network errors, non-JSON text errors (where err.response.data is a string), 
+      } else {
+        // Handles network errors, non-JSON text errors (where err.response.data is a string),
         // or other unexpected error structures by setting a generic message.
         setError('Registration failed. Please try again.');
       }

@@ -19,7 +19,7 @@ export default defineConfig({
         // functions: 80, // Optional: can add later if needed
         // branches: 80,  // Optional: can add later if needed
         // statements: 80 // Optional: can add later if needed
-      }
-    }
+      },
+    },
   },
 });
