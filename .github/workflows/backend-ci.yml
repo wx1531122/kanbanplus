@@ -45,7 +45,7 @@ jobs:
 
       - name: Run tests with Pytest and Generate Coverage
         # Run from ./backend directory, pytest.ini configures coverage for 'app' (backend/app)
-        run: PYTHONPATH=$GITHUB_WORKSPACE pytest --cov=app --cov-report=xml --cov-report=term-missing tests/
+        run: PYTHONPATH=$GITHUB_WORKSPACE pytest --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=80 tests/
         # The --cov=app is relative to backend/ (where pytest.ini is and where command runs)
         # This generates coverage.xml and term-missing report.
 

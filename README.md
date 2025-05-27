@@ -147,13 +147,30 @@ docker-compose down -v
 
 ## CI/CD
 
-This project uses GitHub Actions for Continuous Integration (CI). Workflows are defined in `.github/workflows/` for both the backend and frontend. These workflows automatically:
-*   Install dependencies.
-*   Run linters (Flake8 for backend, ESLint for frontend).
-*   Run format checkers (Black for backend and frontend).
-*   Execute automated tests (Pytest for backend, Vitest for frontend), including coverage generation.
-*   Build Docker images to ensure they are valid.
-*   Optionally, on pushes to the `main` branch, publish Docker images to GitHub Container Registry (GHCR).
+This project uses GitHub Actions for Continuous Integration (CI). Workflows are defined in `.github/workflows/` for both the backend (`backend-ci.yml`) and frontend (`frontend-ci.yml`).
+
+These workflows automatically perform the following on every push and pull request to the `main` branch:
+*   **Checkout Code:** Fetches the latest version of the code.
+*   **Setup Environment:** Configures the necessary runtime (Python for backend, Node.js for frontend).
+*   **Install Dependencies:** Installs all required libraries and packages.
+*   **Linting & Formatting:**
+    *   Backend: Runs Flake8 for linting and Black for format checking.
+    *   Frontend: Runs ESLint for linting and Prettier (via `npm run format:check`) for format checking.
+*   **Automated Testing & Coverage:**
+    *   Backend: Executes tests using Pytest. Code coverage is generated, and the build will fail if line coverage is below 80%.
+    *   Frontend: Executes tests using Vitest. Code coverage is generated, and the build will fail if line coverage is below 80%.
+*   **Docker Image Build Test:** Builds Docker images for both frontend and backend to ensure the Dockerfiles are correct and the applications can be containerized.
+
+**Image Publishing (on push to `main` branch):**
+*   **Publish to GHCR:** If all the above steps pass on a push to the `main` branch, the backend and frontend Docker images are built and pushed to GitHub Container Registry (GHCR).
+    *   Backend image: `ghcr.io/OWNER/REPO_NAME/kanban-backend:latest` and `ghcr.io/OWNER/REPO_NAME/kanban-backend:<commit_sha>`
+    *   Frontend image: `ghcr.io/OWNER/REPO_NAME/kanban-frontend:latest` and `ghcr.io/OWNER/REPO_NAME/kanban-frontend:<commit_sha>`
+      *(Note: Replace `OWNER/REPO_NAME` with the actual GitHub repository owner and name, which is derived from the `github.repository` variable in Actions, e.g., `your-username/your-repo-name`)*.
+
+**Manual Deployment:**
+Once the images are available in GHCR, you can pull them to your server and deploy them manually using Docker commands (e.g., `docker pull <image_name>:<tag>` and then `docker run ...` or by updating your `docker-compose.yml` and running `docker-compose up -d`).
+
+You can monitor the status of the CI workflows (build, test, publish) in the "Actions" tab of the GitHub repository.
 
 ## Contributing
 
