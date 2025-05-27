@@ -115,10 +115,7 @@ describe('RegisterPage', () => {
     renderRegisterPage();
 
     await user.type(screen.getByLabelText('Username'), 'testuser');
-    await user.type(
-      screen.getByLabelText('Email'),
-      'existing@example.com',
-    );
+    await user.type(screen.getByLabelText('Email'), 'existing@example.com');
     await user.type(screen.getByLabelText('Password'), 'password');
     await user.click(screen.getByRole('button', { name: 'Register' }));
     vi.runAllTimers(); // Try flushing all timers
@@ -134,7 +131,8 @@ describe('RegisterPage', () => {
     // Spy on apiClient.post and mock its rejection for this test
     postSpy = vi.spyOn(apiClient, 'post').mockRejectedValueOnce({
       isAxiosError: true,
-      response: { // This mock will hit the component's 'else' branch in the catch block
+      response: {
+        // This mock will hit the component's 'else' branch in the catch block
         data: 'Server Error Details', // or simply make it an error that doesn't have err.response.data.message
         status: 500,
       },
@@ -150,22 +148,27 @@ describe('RegisterPage', () => {
     // Diagnostic waitFor:
     let diagnosticFlag = false;
     try {
-      await waitFor(() => {
-        // This condition is designed to not be met, to test waitFor's own timeout
-        if (screen.queryByText('THIS_TEXT_SHOULD_NOT_EXIST_ANYWHERE')) {
-          diagnosticFlag = true; // Should not happen
-        }
-        expect(diagnosticFlag).toBe(true);
-      }, { timeout: 150 }); // Very short timeout for testing waitFor itself
-    // eslint-disable-next-line no-unused-vars
-    } catch (_e) { 
+      await waitFor(
+        () => {
+          // This condition is designed to not be met, to test waitFor's own timeout
+          if (screen.queryByText('THIS_TEXT_SHOULD_NOT_EXIST_ANYWHERE')) {
+            diagnosticFlag = true; // Should not happen
+          }
+          expect(diagnosticFlag).toBe(true);
+        },
+        { timeout: 150 },
+      ); // Very short timeout for testing waitFor itself
+      // eslint-disable-next-line no-unused-vars
+    } catch (_e) {
       // This catch block is expected to be hit if waitFor times out.
       // This is a "pass" for this part of the diagnostic.
       // If the test still times out at 400s, the problem is before this waitFor.
     }
 
     // Actual assertion for the test case
-    expect(await screen.findByText('Registration failed. Please try again.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Registration failed. Please try again.'),
+    ).toBeInTheDocument();
   });
 
   it('shows a link to the login page', () => {

@@ -806,9 +806,15 @@ def add_tag_to_task(task_id):
     except IntegrityError as e:
         db.session.rollback()
         # Check if it was a race condition on tag creation specifically
-        if "tags_name_key" in str(e.orig) or "UNIQUE constraint failed: tag.name" in str(e.orig):  # Adapt based on DB
+        if "tags_name_key" in str(
+            e.orig
+        ) or "UNIQUE constraint failed: tag.name" in str(
+            e.orig
+        ):  # Adapt based on DB
             # Fetch the now-existing tag
-            existing_tag_after_race = Tag.query.filter(db.func.lower(Tag.name) == tag_name.lower()).first()
+            existing_tag_after_race = Tag.query.filter(
+                db.func.lower(Tag.name) == tag_name.lower()
+            ).first()
             if existing_tag_after_race and existing_tag_after_race not in task.tags:
                 task.tags.append(existing_tag_after_race)
                 # Re-record activity for the correct tag if it was a race condition for new tag
@@ -827,7 +833,14 @@ def add_tag_to_task(task_id):
                 # Tag was created by another request and already associated, or associated in this session before rollback
                 pass  # Already handled or present
             else:  # Some other integrity error
-                return jsonify({"message": "Database integrity error after attempting to handle tag creation race condition."}), 500
+                return (
+                    jsonify(
+                        {
+                            "message": "Database integrity error after attempting to handle tag creation race condition."
+                        }
+                    ),
+                    500,
+                )
         else:  # Other integrity error not related to tag name uniqueness
             return jsonify({"message": "Database integrity error."}), 500
     return jsonify(task.to_dict(include_subtasks=True, include_tags=True)), 200
