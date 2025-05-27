@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'; // Import fireEvent
+import userEventLib from '@testing-library/user-event'; // Rename to avoid conflict
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { server } from '../../mocks/server'; // MSW server
@@ -32,6 +32,7 @@ const renderRegisterPage = () => {
 
 describe('RegisterPage', () => {
   beforeEach(() => {
+    vi.useFakeTimers(); // Use fake timers
     vi.clearAllMocks();
     server.resetHandlers();
     // Default successful registration handler
@@ -44,6 +45,12 @@ describe('RegisterPage', () => {
       }),
     );
   });
+
+  // Optional: Add afterEach to restore real timers if other tests in the same file need them,
+  // or rely on beforeEach to reset them for each test.
+  // afterEach(() => {
+  //  vi.useRealTimers();
+  // });
 
   it('renders registration form with username, email, password fields and a submit button', () => {
     renderRegisterPage();
@@ -59,10 +66,11 @@ describe('RegisterPage', () => {
   });
 
   it('allows user to type into form fields', async () => {
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
     renderRegisterPage();
-    await userEvent.type(screen.getByLabelText('Username'), 'newuser');
-    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), 'securepassword');
+    await user.type(screen.getByLabelText('Username'), 'newuser');
+    await user.type(screen.getByLabelText('Email'), 'new@example.com');
+    await user.type(screen.getByLabelText('Password'), 'securepassword');
 
     expect(screen.getByLabelText('Username')).toHaveValue('newuser');
     expect(screen.getByLabelText('Email')).toHaveValue('new@example.com');
@@ -70,12 +78,13 @@ describe('RegisterPage', () => {
   });
 
   it('submits form data and navigates to login on successful registration', async () => {
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
     renderRegisterPage();
 
-    await userEvent.type(screen.getByLabelText('Username'), 'newuser');
-    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), 'securepassword');
-    await userEvent.click(screen.getByRole('button', { name: 'Register' }));
+    await user.type(screen.getByLabelText('Username'), 'newuser');
+    await user.type(screen.getByLabelText('Email'), 'new@example.com');
+    await user.type(screen.getByLabelText('Password'), 'securepassword');
+    await user.click(screen.getByRole('button', { name: 'Register' }));
 
     // Wait for the navigation to be called, accounting for the 2-second delay
     // Also, assert only with the arguments actually used by the component.
@@ -88,8 +97,9 @@ describe('RegisterPage', () => {
   });
 
   it('displays error message on failed registration (e.g., email exists)', async () => {
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
     server.use(
-      http.post('/api/auth/register', () => {
+      http.post('/api/auth/register', async () => { // Keep this async as per previous step
         return HttpResponse.json(
           { message: 'Email already exists' },
           { status: 409 },
@@ -98,12 +108,13 @@ describe('RegisterPage', () => {
     );
     renderRegisterPage();
 
-    await userEvent.type(
+    await user.type(screen.getByLabelText('Username'), 'testuser'); // Add username as it's required by component logic
+    await user.type(
       screen.getByLabelText('Email'),
       'existing@example.com',
     );
-    await userEvent.type(screen.getByLabelText('Password'), 'password');
-    await userEvent.click(screen.getByRole('button', { name: 'Register' }));
+    await user.type(screen.getByLabelText('Password'), 'password');
+    await user.click(screen.getByRole('button', { name: 'Register' }));
 
     expect(
       await screen.findByText('Registration failed: Email already exists'),
@@ -112,20 +123,28 @@ describe('RegisterPage', () => {
   });
 
   it('displays error message if API returns non-JSON error or network error', async () => {
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
     server.use(
-      http.post('/api/auth/register', () => {
-        return new HttpResponse('Server Error', { status: 500 });
+      http.post('/api/auth/register', async () => {
+        return new HttpResponse('Server Error', { status: 500 }); // Revert to HttpResponse
       }),
     );
     renderRegisterPage();
 
-    await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), 'password');
-    await userEvent.click(screen.getByRole('button', { name: 'Register' }));
+    await user.type(screen.getByLabelText('Username'), 'testuser');
+    await user.type(screen.getByLabelText('Email'), 'test@example.com');
+    await user.type(screen.getByLabelText('Password'), 'password');
+    // await user.click(screen.getByRole('button', { name: 'Register' })); // Replaced by fireEvent.submit
+    // fireEvent.submit(screen.getByTestId('registration-form')); // Reverting to user.click
+    await user.click(screen.getByRole('button', { name: 'Register' }));
 
-    expect(
-      await screen.findByText('Registration failed. Please try again.'),
-    ).toBeInTheDocument();
+
+    // Use waitFor to ensure all state updates have a chance to apply
+    // await waitFor(() => {
+    //   expect(screen.getByText('Registration failed. Please try again.')).toBeInTheDocument();
+    // });
+    // Reverting to findByText
+    expect(await screen.findByText('Registration failed. Please try again.')).toBeInTheDocument();
   });
 
   it('shows a link to the login page', () => {
