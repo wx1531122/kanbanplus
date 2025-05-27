@@ -157,7 +157,8 @@ describe('RegisterPage', () => {
         }
         expect(diagnosticFlag).toBe(true);
       }, { timeout: 150 }); // Very short timeout for testing waitFor itself
-    } catch (_e) { // Changed e to _e
+    // eslint-disable-next-line no-unused-vars
+    } catch (_e) { 
       // This catch block is expected to be hit if waitFor times out.
       // This is a "pass" for this part of the diagnostic.
       // If the test still times out at 400s, the problem is before this waitFor.
