@@ -38,8 +38,14 @@ const RegisterPage = () => {
         navigate('/login');
       }, 2000); // Redirect after 2 seconds
     } catch (err) {
-      // Simplified catch block for extreme debugging of timeout
-      setError('Registration failed. Please try again.');
+      // Handles specific JSON error messages from the server that have a `message` property
+      if (err.response && err.response.data && typeof err.response.data.message === 'string') {
+        setError('Registration failed: ' + err.response.data.message);
+      } else { 
+        // Handles network errors, non-JSON text errors (where err.response.data is a string), 
+        // or other unexpected error structures by setting a generic message.
+        setError('Registration failed. Please try again.');
+      }
     }
   };
 

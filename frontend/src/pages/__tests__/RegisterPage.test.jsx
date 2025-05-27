@@ -1,11 +1,12 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'; // Import fireEvent
+import { render, screen, waitFor } from '@testing-library/react'; // Removed fireEvent
 import userEventLib from '@testing-library/user-event'; // Rename to avoid conflict
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'; // Import afterEach
 import { server } from '../../mocks/server'; // MSW server
 import { http, HttpResponse } from 'msw';
 import RegisterPage from '../RegisterPage';
+import apiClient from '../../services/api'; // Import apiClient for spying
 import { AuthProvider } from '../../contexts/AuthContext'; // To provide context if needed
 
 // Mock useNavigate from react-router-dom
@@ -31,11 +32,14 @@ const renderRegisterPage = () => {
 };
 
 describe('RegisterPage', () => {
+  let postSpy;
+
   beforeEach(() => {
-    vi.useFakeTimers(); // Use fake timers
+    vi.useFakeTimers(); // Re-enable fake timers
     vi.clearAllMocks();
-    server.resetHandlers();
-    // Default successful registration handler
+    server.resetHandlers(); // Keep MSW reset for other tests or default handlers
+
+    // Default MSW handler for successful registration (can be overridden by spies)
     server.use(
       http.post('/api/auth/register', () => {
         return HttpResponse.json(
@@ -46,11 +50,12 @@ describe('RegisterPage', () => {
     );
   });
 
-  // Optional: Add afterEach to restore real timers if other tests in the same file need them,
-  // or rely on beforeEach to reset them for each test.
-  // afterEach(() => {
-  //  vi.useRealTimers();
-  // });
+  afterEach(() => {
+    // Restore any spies after each test
+    if (postSpy) {
+      postSpy.mockRestore();
+    }
+  });
 
   it('renders registration form with username, email, password fields and a submit button', () => {
     renderRegisterPage();
@@ -66,7 +71,7 @@ describe('RegisterPage', () => {
   });
 
   it('allows user to type into form fields', async () => {
-    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime }); // Use with fake timers
     renderRegisterPage();
     await user.type(screen.getByLabelText('Username'), 'newuser');
     await user.type(screen.getByLabelText('Email'), 'new@example.com');
@@ -78,7 +83,7 @@ describe('RegisterPage', () => {
   });
 
   it('submits form data and navigates to login on successful registration', async () => {
-    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime }); // Use with fake timers
     renderRegisterPage();
 
     await user.type(screen.getByLabelText('Username'), 'newuser');
@@ -97,24 +102,26 @@ describe('RegisterPage', () => {
   });
 
   it('displays error message on failed registration (e.g., email exists)', async () => {
-    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
-    server.use(
-      http.post('/api/auth/register', async () => { // Keep this async as per previous step
-        return HttpResponse.json(
-          { message: 'Email already exists' },
-          { status: 409 },
-        );
-      }),
-    );
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime }); // Use with fake timers
+    // Spy on apiClient.post and mock its rejection for this test
+    postSpy = vi.spyOn(apiClient, 'post').mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        data: { message: 'Email already exists' },
+        status: 409,
+      },
+    });
+
     renderRegisterPage();
 
-    await user.type(screen.getByLabelText('Username'), 'testuser'); // Add username as it's required by component logic
+    await user.type(screen.getByLabelText('Username'), 'testuser');
     await user.type(
       screen.getByLabelText('Email'),
       'existing@example.com',
     );
     await user.type(screen.getByLabelText('Password'), 'password');
     await user.click(screen.getByRole('button', { name: 'Register' }));
+    vi.runAllTimers(); // Try flushing all timers
 
     expect(
       await screen.findByText('Registration failed: Email already exists'),
@@ -123,27 +130,40 @@ describe('RegisterPage', () => {
   });
 
   it('displays error message if API returns non-JSON error or network error', async () => {
-    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime });
-    server.use(
-      http.post('/api/auth/register', async () => {
-        return new HttpResponse('Server Error', { status: 500 }); // Revert to HttpResponse
-      }),
-    );
+    const user = userEventLib.setup({ advanceTimers: vi.advanceTimersByTime }); // Use with fake timers
+    // Spy on apiClient.post and mock its rejection for this test
+    postSpy = vi.spyOn(apiClient, 'post').mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { // This mock will hit the component's 'else' branch in the catch block
+        data: 'Server Error Details', // or simply make it an error that doesn't have err.response.data.message
+        status: 500,
+      },
+    });
+
     renderRegisterPage();
 
     await user.type(screen.getByLabelText('Username'), 'testuser');
     await user.type(screen.getByLabelText('Email'), 'test@example.com');
     await user.type(screen.getByLabelText('Password'), 'password');
-    // await user.click(screen.getByRole('button', { name: 'Register' })); // Replaced by fireEvent.submit
-    // fireEvent.submit(screen.getByTestId('registration-form')); // Reverting to user.click
     await user.click(screen.getByRole('button', { name: 'Register' }));
 
+    // Diagnostic waitFor:
+    let diagnosticFlag = false;
+    try {
+      await waitFor(() => {
+        // This condition is designed to not be met, to test waitFor's own timeout
+        if (screen.queryByText('THIS_TEXT_SHOULD_NOT_EXIST_ANYWHERE')) {
+          diagnosticFlag = true; // Should not happen
+        }
+        expect(diagnosticFlag).toBe(true);
+      }, { timeout: 150 }); // Very short timeout for testing waitFor itself
+    } catch (e) {
+      // This catch block is expected to be hit if waitFor times out.
+      // This is a "pass" for this part of the diagnostic.
+      // If the test still times out at 400s, the problem is before this waitFor.
+    }
 
-    // Use waitFor to ensure all state updates have a chance to apply
-    // await waitFor(() => {
-    //   expect(screen.getByText('Registration failed. Please try again.')).toBeInTheDocument();
-    // });
-    // Reverting to findByText
+    // Actual assertion for the test case
     expect(await screen.findByText('Registration failed. Please try again.')).toBeInTheDocument();
   });
 
